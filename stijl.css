@@ -1,0 +1,94 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F5F5F5;
+}
+
+
+header {
+    width: 100%;
+    height: 200px;
+    background-color: #2E86AB;
+    color: white;
+}
+
+header h1 {
+    font-size: 2em;
+    margin: 0;
+}
+
+footer {
+    width: 100%;
+    height: 200px;
+    background-color: Navy;
+    color: white;
+}
+
+footer p {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+main {
+    padding: 30px;
+    text-align: center;
+}
+
+table {
+    margin: 0 auto;
+    border-collapse: collapse;
+    width: 80%;
+}
+
+td {
+    width: 150px;
+    height: 100px;
+    text-align: center;
+    vertical-align: middle;
+    border: 2px solid #333;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding: 5px;
+}
+
+td img {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+
+#cel1  { background-color: #FF6B6B; color: white; }
+#cel2  { background-color: #4ECDC4; }
+#cel3  { background-color: #FFE66D; }
+#cel4  { background-color: #A8E6CF; }
+
+#cel5  { background-color: #C3B1E1; }
+#cel6  { background-color: #FFDAB9; }
+#cel7  { background-color: #B5EAD7; }
+#cel8  { background-color: #FF9AA2; }
+
+#cel9  { background-color: #85C1E9; }
+#cel10 { background-color: #F9E79F; }
+#cel11 { background-color: #F1948A; }
+#cel12 { background-color: #A9CCE3; }
+
+#cel13 { background-color: #A2D9CE; }
+#cel14 { background-color: #D7BDE2; }
+#cel15 { background-color: #FAD7A0; }
+#cel16 { background-color: #faA4c9; }
+
+
+#cel1  { background-color: #E74C3C; color: white; }
+#cel3  { background-color: #F39C12; color: white; }
+
+#cel5  { background-color: #8E44AD; color: white; }
+#cel7  { background-color: #27AE60; color: white; }
+
+#cel9  { background-color: #2980B9; color: white; }
+#cel11 { background-color: #C0392B; color: white; }
+
+#cel13 { background-color: #16A085; color: white; }
+#cel15 { background-color: #D35400; color: white; }
