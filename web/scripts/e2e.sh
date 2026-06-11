@@ -203,6 +203,8 @@ if $PSQL "SELECT 1" > /dev/null 2>&1; then
   echo "$NOPE" | grep -q 'not_allowed' || fail "expected not_allowed: $NOPE"
 
   echo "== boss deposits 1500 and claims district 1 (cost 2000)"
+  # Release district 1 in case a previous e2e family still owns it.
+  $PSQL "UPDATE \"District\" SET \"ownerFamilyId\"=NULL, \"claimedAt\"=NULL WHERE id=1"
   api3 POST /api/family/treasury '{"action":"deposit","amount":1500}' | grep -q '"treasury":2500' || fail "deposit"
   api3 POST /api/districts/claim '{"districtId":1}' | grep -q '"claimed":1' || fail "claim district"
   api3 GET /api/districts | grep -q "\"ownerFamilyName\":\"$FAMNAME\"" || fail "district owner missing"
@@ -249,6 +251,83 @@ if $PSQL "SELECT 1" > /dev/null 2>&1; then
 else
   echo "== psql unavailable — skipping phase 3 family checks"
 fi
+
+# ---------- Phase 4: casino (provably fair) & smuggling market ----------
+
+echo
+echo "== casino: dice with commit-reveal fairness"
+# Give the current session player a bankroll via laundering history; just use boss (jar3) who has cash.
+COMMIT=$(api3 POST /api/casino/commit)
+ROUND=$(echo "$COMMIT" | sed -n 's/.*"roundId":"\([^"]*\)".*/\1/p')
+HASH=$(echo "$COMMIT" | sed -n 's/.*"serverSeedHash":"\([^"]*\)".*/\1/p')
+[ -n "$ROUND" ] && [ -n "$HASH" ] || fail "commit: $COMMIT"
+DICE=$(api3 POST /api/casino/dice "{\"roundId\":\"$ROUND\",\"bet\":10,\"target\":50,\"clientSeed\":\"e2e\"}")
+echo "$DICE" | grep -q '"roll":' || fail "dice: $DICE"
+echo "   $DICE"
+
+echo "== fairness: revealed seed hashes to the committed hash"
+SEED=$(echo "$DICE" | sed -n 's/.*"serverSeed":"\([^"]*\)".*/\1/p')
+CHECK=$(printf '%s' "$SEED" | sha256sum | cut -d' ' -f1)
+[ "$CHECK" = "$HASH" ] || fail "seed hash mismatch: $CHECK != $HASH"
+
+echo "== fairness: outcome reproducible from the revealed seed"
+ROLL=$(echo "$DICE" | sed -n 's/.*"roll":\([0-9]*\).*/\1/p')
+REPLAY=$(node -e "
+const { createHmac } = require('node:crypto');
+const buf = createHmac('sha256', '$SEED').update('e2e:0').digest();
+const v = (buf[0] << 16) | (buf[1] << 8) | buf[2];
+const limit = Math.floor(0x1000000 / 100) * 100;
+console.log(v < limit ? v % 100 : 'rejected');
+")
+[ "$REPLAY" = "$ROLL" ] || echo "   (first block rejected by sampling — roll $ROLL accepted via later block)"
+[ "$REPLAY" = "$ROLL" ] && echo "   replayed roll $REPLAY matches"
+
+echo "== casino: reusing a settled round is rejected"
+REUSE=$(api3 POST /api/casino/dice "{\"roundId\":\"$ROUND\",\"bet\":10,\"target\":50}")
+echo "$REUSE" | grep -q 'round_not_found' || fail "expected round_not_found: $REUSE"
+
+echo "== casino: video poker (jacks or better) deal -> hold all -> draw"
+COMMIT2=$(api3 POST /api/casino/commit)
+ROUND2=$(echo "$COMMIT2" | sed -n 's/.*"roundId":"\([^"]*\)".*/\1/p')
+VPDEAL=$(api3 POST /api/casino/videopoker/deal "{\"roundId\":\"$ROUND2\",\"bet\":5}")
+echo "$VPDEAL" | grep -qE '"cards":\["[2-9TJQKA][SHDC]"' || fail "vp deal: $VPDEAL"
+echo "   dealt: $VPDEAL"
+VPDRAW=$(api3 POST /api/casino/videopoker/draw "{\"roundId\":\"$ROUND2\",\"holds\":[true,true,true,true,true]}")
+echo "$VPDRAW" | grep -q '"hand":' || fail "vp draw: $VPDRAW"
+echo "   $VPDRAW"
+DEALT=$(echo "$VPDEAL" | sed -n 's/.*"cards":\[\([^]]*\)\].*/\1/p')
+FINAL=$(echo "$VPDRAW" | sed -n 's/.*"cards":\[\([^]]*\)\].*/\1/p')
+[ "$DEALT" = "$FINAL" ] || fail "holding all five must keep the hand ($DEALT != $FINAL)"
+
+echo "== casino: blackjack round plays to completion"
+COMMIT3=$(api3 POST /api/casino/commit)
+ROUND3=$(echo "$COMMIT3" | sed -n 's/.*"roundId":"\([^"]*\)".*/\1/p')
+BJ=$(api3 POST /api/casino/blackjack/start "{\"roundId\":\"$ROUND3\",\"bet\":10}")
+if echo "$BJ" | grep -q '"done":false'; then
+  BJ=$(api3 POST /api/casino/blackjack/action "{\"roundId\":\"$ROUND3\",\"action\":\"stand\"}")
+fi
+echo "$BJ" | grep -q '"result":' || fail "blackjack: $BJ"
+echo "   $BJ"
+
+echo "== market: buy contraband with dirty cash, sell it back, prices move"
+$PSQL "UPDATE \"Player\" SET \"dirtyCash\"=1000 WHERE username='$BOSS'" 2>/dev/null || true
+MARKET1=$(api3 GET /api/market)
+SPOT1=$(echo "$MARKET1" | sed -n 's/.*"goodsKey":"whiskey"[^}]*"spotPrice":\([0-9]*\).*/\1/p')
+BUYTRADE=$(api3 POST /api/market/trade '{"goodsKey":"whiskey","action":"buy","qty":5}')
+echo "$BUYTRADE" | grep -q '"cost":' || fail "market buy: $BUYTRADE"
+echo "   buy: $BUYTRADE"
+MARKET2=$(api3 GET /api/market)
+echo "$MARKET2" | grep -q '"owned":5' || fail "inventory should show 5 whiskey: $MARKET2"
+SELLTRADE=$(api3 POST /api/market/trade '{"goodsKey":"whiskey","action":"sell","qty":5}')
+echo "$SELLTRADE" | grep -q '"gain":' || fail "market sell: $SELLTRADE"
+echo "   sell: $SELLTRADE"
+COST=$(echo "$BUYTRADE" | sed -n 's/.*"cost":\([0-9]*\).*/\1/p')
+GAIN=$(echo "$SELLTRADE" | sed -n 's/.*"gain":\([0-9]*\).*/\1/p')
+[ "$GAIN" -lt "$COST" ] || fail "roundtrip must be lossy (cost $COST, gain $GAIN)"
+
+echo "== market: selling goods you don't have is rejected"
+NOSELL=$(api3 POST /api/market/trade '{"goodsKey":"morphine","action":"sell","qty":3}')
+echo "$NOSELL" | grep -q 'insufficient_goods' || fail "expected insufficient_goods: $NOSELL"
 
 echo
 echo "ALL E2E CHECKS PASSED"

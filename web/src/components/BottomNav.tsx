@@ -2,13 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Skull, Crosshair, Users, Landmark, UserRound } from "lucide-react";
+import { Skull, Crosshair, Users, Spade, UserRound } from "lucide-react";
 
 const tabs = [
   { href: "/", key: "crimes", icon: Skull },
   { href: "/city", key: "city", icon: Crosshair },
   { href: "/family", key: "family", icon: Users },
-  { href: "/bank", key: "bank", icon: Landmark },
+  { href: "/casino", key: "casino", icon: Spade },
   { href: "/profile", key: "profile", icon: UserRound },
 ] as const;
 

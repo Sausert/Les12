@@ -18,6 +18,7 @@
     "crimes": "Crimes",
     "city": "City",
     "family": "Family",
+    "casino": "Casino",
     "leaderboard": "Leaderboard",
     "bank": "Bank",
     "profile": "Profile"
@@ -344,5 +345,90 @@
     "walletTitle": "Sonic wallet",
     "statsTitle": "Statistics",
     "language": "Language"
+  },
+  "casino": {
+    "title": "The Casino",
+    "subtitle": "The house always wins. Almost always.",
+    "games": {
+      "dice": "Dice",
+      "roulette": "Roulette",
+      "blackjack": "Blackjack",
+      "videopoker": "Video Poker"
+    },
+    "bet": "Bet",
+    "lost": "lost",
+    "diceTarget": "Roll under {target} · {chance}% chance · {multiplier}× payout",
+    "rollButton": "Roll",
+    "spinButton": "Spin",
+    "dealButton": "Deal",
+    "drawButton": "Draw new cards",
+    "hit": "Hit",
+    "stand": "Stand",
+    "double": "Double",
+    "dealerHand": "Dealer",
+    "yourHand": "Your hand",
+    "holdHint": "Tap cards to hold them, then draw.",
+    "paytable": "Pay table (Jacks or Better)",
+    "rouletteBets": {
+      "red": "Red",
+      "black": "Black",
+      "odd": "Odd",
+      "even": "Even",
+      "low": "1-18",
+      "high": "19-36",
+      "number": "Number (35:1)"
+    },
+    "bjResult": {
+      "WIN": "WIN",
+      "LOSE": "LOSE",
+      "PUSH": "PUSH",
+      "BLACKJACK": "BLACKJACK!"
+    },
+    "vpHands": {
+      "ROYAL_FLUSH": "Royal Flush",
+      "STRAIGHT_FLUSH": "Straight Flush",
+      "FOUR_OF_A_KIND": "Four of a Kind",
+      "FULL_HOUSE": "Full House",
+      "FLUSH": "Flush",
+      "STRAIGHT": "Straight",
+      "THREE_OF_A_KIND": "Three of a Kind",
+      "TWO_PAIR": "Two Pair",
+      "JACKS_OR_BETTER": "Jacks or Better",
+      "NOTHING": "Nothing"
+    },
+    "committedHash": "Pre-committed seed hash",
+    "fairnessNote": "Provably fair: before every bet the casino commits to a secret seed via the SHA-256 hash shown. After settling, the seed is revealed so you can verify the outcome yourself (see /api/casino/history).",
+    "errors": {
+      "insufficient_cash": "Not enough clean cash.",
+      "invalid_bet": "Bet: 1 to 10,000 OMD.",
+      "round_not_found": "This round expired — request a new hash.",
+      "invalid_action": "That move isn't available now.",
+      "dead": "Dead men don't gamble.",
+      "jailed": "No gambling from a cell."
+    }
+  },
+  "market": {
+    "title": "Smuggling market",
+    "subtitle": "Trades settle in dirty cash. Carry capacity: {cap} per good.",
+    "goods": {
+      "whiskey": "Whiskey",
+      "cigars": "Cigars",
+      "morphine": "Morphine"
+    },
+    "owned": "carrying: {qty}",
+    "buy": "Buy ({price})",
+    "sell": "Sell ({price})",
+    "bought": "Bought {qty} for {cost} OMD dirty cash.",
+    "sold": "Sold {qty} for {gain} OMD dirty cash.",
+    "hint": "Prices move with every trade (a bonding curve per district). Buy cheap in one district, travel, sell dear in another.",
+    "errors": {
+      "insufficient_dirty_cash": "Not enough dirty cash.",
+      "insufficient_goods": "You don't carry that many.",
+      "insufficient_stock": "The market doesn't hold that much stock.",
+      "carry_cap": "You can't carry more — rank up.",
+      "no_market": "No market in this district.",
+      "dead": "Dead men don't smuggle.",
+      "jailed": "No trading from a cell."
+    }
   }
 }

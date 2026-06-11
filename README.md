@@ -64,8 +64,23 @@ Les12/
 - **Verraad & omertà**: praat anoniem met de politie — de inval kost de familiekas 20% en
   jij vangt de helft, maar bij ontmaskering lig je eruit en staat de hele stad tegen je
 
-Latere fasen (casino & smokkel, NFT-bezittingen, seizoenen) staan
-beschreven in het projectplan en bouwen additief op dit schema voort.
+### Casino & smokkel (fase 4 — dit is gebouwd)
+
+- **Vier casinospellen**: dobbelen (roll-under, instelbare kans), Europese roulette,
+  blackjack (hit/stand/double, 3:2 op blackjack) en **video poker — Jacks or Better**
+  (9/6-uitbetalingstabel, hold & draw)
+- **Provably fair**: vóór elke inzet committeert het casino zich op een geheime seed via
+  een SHA-256-hash; alle kaarten/worpen komen deterministisch uit
+  HMAC-SHA256(serverSeed, clientSeed) en na afloop wordt de seed onthuld zodat elke
+  uitkomst narekenbaar is (`/api/casino/history`)
+- **Spelersgedreven smokkelmarkt**: whiskey, sigaren en morfine per wijk, geprijsd door
+  een constant-product bonding curve — elke transactie beweegt de prijs, dus
+  smokkelroutes (goedkoop inkopen, reizen, duur verkopen) ontstaan puur uit
+  spelersgedrag; handel in zwart geld, draagcapaciteit stijgt met je rang, 2% marktfee
+  wordt verbrand
+
+Fase 5 en 6 (NFT-bezittingen, veilinghuis, testament, seizoenen) staan beschreven in het
+projectplan en bouwen additief op dit schema voort.
 
 ## Snel starten (lokaal)
 

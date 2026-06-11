@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { LogOut, Trophy } from "lucide-react";
+import { LogOut, Trophy, Landmark } from "lucide-react";
 import { useGame } from "./GameProvider";
 
 export function Profile() {
@@ -77,6 +77,13 @@ export function Profile() {
           ))}
         </div>
       </div>
+
+      <Link
+        href="/bank"
+        className="dossier flex items-center justify-center gap-2 p-3 text-sm text-gold"
+      >
+        <Landmark size={16} /> {t("nav.bank")}
+      </Link>
 
       <Link
         href="/leaderboard"

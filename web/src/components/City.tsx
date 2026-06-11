@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, Shield, Target, Newspaper, Lock } from "lucide-react";
 import { useGame } from "./GameProvider";
+import { Market } from "./Market";
 
 interface FoundTarget {
   username: string;
@@ -368,6 +369,8 @@ export function City() {
           ))}
         </div>
       </section>
+
+      <Market />
 
       {/* Kill feed as newspaper */}
       <section>

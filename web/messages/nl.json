@@ -18,6 +18,7 @@
     "crimes": "Misdaden",
     "city": "Stad",
     "family": "Familie",
+    "casino": "Casino",
     "leaderboard": "Ranglijst",
     "bank": "Bank",
     "profile": "Profiel"
@@ -344,5 +345,90 @@
     "walletTitle": "Sonic wallet",
     "statsTitle": "Statistieken",
     "language": "Taal"
+  },
+  "casino": {
+    "title": "Het Casino",
+    "subtitle": "Het huis wint altijd. Bijna altijd.",
+    "games": {
+      "dice": "Dobbelen",
+      "roulette": "Roulette",
+      "blackjack": "Blackjack",
+      "videopoker": "Video Poker"
+    },
+    "bet": "Inzet",
+    "lost": "verloren",
+    "diceTarget": "Gooi onder {target} · {chance}% kans · {multiplier}× uitbetaling",
+    "rollButton": "Gooi",
+    "spinButton": "Draai",
+    "dealButton": "Deel",
+    "drawButton": "Trek nieuwe kaarten",
+    "hit": "Kaart",
+    "stand": "Pas",
+    "double": "Verdubbel",
+    "dealerHand": "Dealer",
+    "yourHand": "Jouw hand",
+    "holdHint": "Tik op kaarten om ze vast te houden, trek dan nieuwe.",
+    "paytable": "Uitbetalingstabel (Jacks or Better)",
+    "rouletteBets": {
+      "red": "Rood",
+      "black": "Zwart",
+      "odd": "Oneven",
+      "even": "Even",
+      "low": "1-18",
+      "high": "19-36",
+      "number": "Nummer (35:1)"
+    },
+    "bjResult": {
+      "WIN": "GEWONNEN",
+      "LOSE": "VERLOREN",
+      "PUSH": "GELIJKSPEL",
+      "BLACKJACK": "BLACKJACK!"
+    },
+    "vpHands": {
+      "ROYAL_FLUSH": "Royal Flush",
+      "STRAIGHT_FLUSH": "Straight Flush",
+      "FOUR_OF_A_KIND": "Four of a Kind",
+      "FULL_HOUSE": "Full House",
+      "FLUSH": "Flush",
+      "STRAIGHT": "Straight",
+      "THREE_OF_A_KIND": "Three of a Kind",
+      "TWO_PAIR": "Two Pair",
+      "JACKS_OR_BETTER": "Jacks or Better",
+      "NOTHING": "Niets"
+    },
+    "committedHash": "Vooraf vastgelegde seed-hash",
+    "fairnessNote": "Provably fair: vóór elke inzet legt het casino zich vast op een geheime seed via de getoonde SHA-256-hash. Na afloop wordt de seed onthuld zodat je de uitkomst zelf kunt narekenen (zie /api/casino/history).",
+    "errors": {
+      "insufficient_cash": "Niet genoeg schoon geld.",
+      "invalid_bet": "Inzet: 1 t/m 10.000 OMD.",
+      "round_not_found": "Deze ronde is verlopen — vraag een nieuwe hash aan.",
+      "invalid_action": "Die zet kan nu niet.",
+      "dead": "Dode mannen gokken niet.",
+      "jailed": "Vanuit de cel gok je niet."
+    }
+  },
+  "market": {
+    "title": "Smokkelmarkt",
+    "subtitle": "Handel in zwart geld. Draagcapaciteit: {cap} per waar.",
+    "goods": {
+      "whiskey": "Whiskey",
+      "cigars": "Sigaren",
+      "morphine": "Morfine"
+    },
+    "owned": "bij je: {qty}",
+    "buy": "Koop ({price})",
+    "sell": "Verkoop ({price})",
+    "bought": "{qty} gekocht voor {cost} OMD zwart geld.",
+    "sold": "{qty} verkocht voor {gain} OMD zwart geld.",
+    "hint": "Prijzen bewegen met elke transactie (bonding curve per wijk). Koop goedkoop in de ene wijk, reis, en verkoop duur in de andere.",
+    "errors": {
+      "insufficient_dirty_cash": "Niet genoeg zwart geld.",
+      "insufficient_goods": "Zoveel heb je er niet.",
+      "insufficient_stock": "De markt heeft niet zoveel voorraad.",
+      "carry_cap": "Meer kun je niet dragen — stijg in rang.",
+      "no_market": "Geen markt in deze wijk.",
+      "dead": "Dode mannen smokkelen niet.",
+      "jailed": "Vanuit de cel handel je niet."
+    }
   }
 }

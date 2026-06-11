@@ -45,6 +45,29 @@ const districts = [
   { id: 6, key: "harbor", taxPct: 5 },
 ];
 
+// Market pools: uneven goods reserves create smuggling routes between
+// districts (cash reserve 10000 everywhere; spot price = cash/goods).
+const marketPools: { districtId: number; goodsKey: string; goodsReserve: bigint }[] = [
+  { districtId: 1, goodsKey: "whiskey", goodsReserve: 1500n },
+  { districtId: 1, goodsKey: "cigars", goodsReserve: 800n },
+  { districtId: 1, goodsKey: "morphine", goodsReserve: 300n },
+  { districtId: 2, goodsKey: "whiskey", goodsReserve: 2500n },
+  { districtId: 2, goodsKey: "cigars", goodsReserve: 1000n },
+  { districtId: 2, goodsKey: "morphine", goodsReserve: 500n },
+  { districtId: 3, goodsKey: "whiskey", goodsReserve: 1000n },
+  { districtId: 3, goodsKey: "cigars", goodsReserve: 2000n },
+  { districtId: 3, goodsKey: "morphine", goodsReserve: 400n },
+  { districtId: 4, goodsKey: "whiskey", goodsReserve: 800n },
+  { districtId: 4, goodsKey: "cigars", goodsReserve: 1200n },
+  { districtId: 4, goodsKey: "morphine", goodsReserve: 600n },
+  { districtId: 5, goodsKey: "whiskey", goodsReserve: 500n },
+  { districtId: 5, goodsKey: "cigars", goodsReserve: 600n },
+  { districtId: 5, goodsKey: "morphine", goodsReserve: 800n },
+  { districtId: 6, goodsKey: "whiskey", goodsReserve: 2000n },
+  { districtId: 6, goodsKey: "cigars", goodsReserve: 900n },
+  { districtId: 6, goodsKey: "morphine", goodsReserve: 1000n },
+];
+
 async function main() {
   for (const rank of ranks) {
     await prisma.rank.upsert({ where: { id: rank.id }, update: rank, create: rank });
@@ -57,6 +80,13 @@ async function main() {
       where: { id: district.id },
       update: { key: district.key, taxPct: district.taxPct },
       create: district,
+    });
+  }
+  for (const pool of marketPools) {
+    await prisma.marketPool.upsert({
+      where: { districtId_goodsKey: { districtId: pool.districtId, goodsKey: pool.goodsKey } },
+      update: {}, // never reset live reserves
+      create: { ...pool, cashReserve: 10_000n },
     });
   }
 

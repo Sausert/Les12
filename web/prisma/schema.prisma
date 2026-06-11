@@ -41,9 +41,48 @@ model Player {
   familyInvites FamilyInvite[]
   heistRoles    HeistRole[]
   betrayals     Betrayal[]
+  casinoRounds  CasinoRound[]
+  inventory     Inventory[]
   createdAt     DateTime       @default(now())
 
   @@index([xp(sort: Desc)])
+}
+
+model CasinoRound {
+  id             String    @id @default(cuid())
+  playerId       String
+  game           String? // DICE | ROULETTE | BLACKJACK | VIDEO_POKER
+  bet            BigInt    @default(0)
+  serverSeed     String
+  serverSeedHash String
+  clientSeed     String?
+  state          Json?
+  outcome        Json?
+  status         String    @default("COMMITTED") // COMMITTED | IN_PLAY | SETTLED
+  payout         BigInt    @default(0)
+  player         Player    @relation(fields: [playerId], references: [id])
+  createdAt      DateTime  @default(now())
+  settledAt      DateTime?
+
+  @@index([playerId, createdAt(sort: Desc)])
+}
+
+model MarketPool {
+  districtId   Int
+  goodsKey     String // whiskey | cigars | morphine
+  goodsReserve BigInt
+  cashReserve  BigInt
+
+  @@id([districtId, goodsKey])
+}
+
+model Inventory {
+  playerId String
+  goodsKey String
+  qty      Int    @default(0)
+  player   Player @relation(fields: [playerId], references: [id])
+
+  @@id([playerId, goodsKey])
 }
 
 model Family {
