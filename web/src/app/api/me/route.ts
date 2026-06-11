@@ -9,7 +9,7 @@ export async function GET() {
   if (player instanceof NextResponse) return player;
 
   const now = new Date();
-  const [rank, ranks, cooldowns, protection, bountyOnMe] = await Promise.all([
+  const [rank, ranks, cooldowns, protection, bountyOnMe, membership, district] = await Promise.all([
     db.rank.findUniqueOrThrow({ where: { id: player.rankId } }),
     db.rank.findMany({ orderBy: { id: "asc" } }),
     db.cooldown.findMany({
@@ -20,6 +20,11 @@ export async function GET() {
       where: { targetId: player.id, status: "OPEN" },
       _sum: { amount: true },
     }),
+    db.familyMember.findUnique({
+      where: { playerId: player.id },
+      include: { family: { select: { name: true } } },
+    }),
+    db.district.findUnique({ where: { id: player.districtId } }),
   ]);
 
   const jailed = player.jailedUntil && player.jailedUntil > now ? player.jailedUntil : null;
@@ -41,6 +46,10 @@ export async function GET() {
       protection && protection.expiresAt > now ? protection.expiresAt.toISOString() : null,
     bountyOnMe: bountyOnMe._sum.amount ?? 0n,
     walletAddress: player.walletAddress,
+    family: membership
+      ? { name: membership.family.name, role: membership.role }
+      : null,
+    district: district ? { id: district.id, key: district.key } : null,
     rank: { id: rank.id, key: rank.key },
     rankProgress: rankProgress(ranks, player.xp),
     nextRank: nextRank ? { key: nextRank.key, minXp: nextRank.minXp } : null,

@@ -160,5 +160,95 @@ if [ "$CHAIN_TEST" = "true" ] && ! echo "$BOUNTY" | grep -q '"fundTxHash":null';
   echo "$KILL" | grep -q '"bountyTxHash":"0x' || fail "expected on-chain bounty claim tx: $KILL"
 fi
 
+# ---------- Phase 3: families, districts, heists & betrayal ----------
+# Needs direct DB access (psql) to grant the boss the required rank/cash.
+
+PSQL="sudo -u postgres psql -q omerta -c"
+if $PSQL "SELECT 1" > /dev/null 2>&1; then
+  JAR3="$(mktemp)"
+  BOSS="boss_$(date +%s)"
+  FAMNAME="Cosa_$(date +%s)"
+  api3() {
+    local method="$1" path="$2" body="${3:-}"
+    if [ -n "$body" ]; then
+      curl -s -b "$JAR3" -c "$JAR3" -X "$method" -H 'content-type: application/json' -d "$body" "$BASE_URL$path"
+    else
+      curl -s -b "$JAR3" -c "$JAR3" -X "$method" "$BASE_URL$path"
+    fi
+  }
+  trap 'rm -f "$JAR" "$JAR2" "$JAR3"' EXIT
+
+  echo
+  echo "== register boss ($BOSS) and grant rank 3 + funds via DB"
+  BREG=$(api3 POST /api/auth/register "{\"username\":\"$BOSS\",\"password\":\"hush-hush-1930\"}")
+  echo "$BREG" | grep -q "\"username\":\"$BOSS\"" || fail "register boss: $BREG"
+  $PSQL "UPDATE \"Player\" SET xp=400, \"rankId\"=3, cash=10000 WHERE username='$BOSS'"
+
+  echo "== boss founds family $FAMNAME (1000 OMD into the vault)"
+  FAM=$(api3 POST /api/family/create "{\"name\":\"$FAMNAME\"}")
+  echo "$FAM" | grep -q "\"name\":\"$FAMNAME\"" || fail "create family: $FAM"
+  echo "$FAM" | grep -q '"treasury":1000' || fail "vault should start at 1000: $FAM"
+
+  echo "== boss invites killer and victim; both accept"
+  api3 POST /api/family/invite "{\"username\":\"$KILLER\"}" | grep -q "$KILLER" || fail "invite killer"
+  api3 POST /api/family/invite "{\"username\":\"$VICTIM\"}" | grep -q "$VICTIM" || fail "invite victim"
+  KINV=$(api GET /api/family | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+  api POST /api/family/respond "{\"inviteId\":\"$KINV\",\"accept\":true}" | grep -q '"joined":true' || fail "killer accept"
+  VINV=$(api2 GET /api/family | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+  api2 POST /api/family/respond "{\"inviteId\":\"$VINV\",\"accept\":true}" | grep -q '"joined":true' || fail "victim accept"
+  api3 GET /api/family | grep -q '"members":\[.*'"$KILLER"'.*\]' || fail "killer not in member list"
+
+  echo "== soldiers cannot withdraw from the vault"
+  NOPE=$(api POST /api/family/treasury '{"action":"withdraw","amount":10}')
+  echo "$NOPE" | grep -q 'not_allowed' || fail "expected not_allowed: $NOPE"
+
+  echo "== boss deposits 1500 and claims district 1 (cost 2000)"
+  api3 POST /api/family/treasury '{"action":"deposit","amount":1500}' | grep -q '"treasury":2500' || fail "deposit"
+  api3 POST /api/districts/claim '{"districtId":1}' | grep -q '"claimed":1' || fail "claim district"
+  api3 GET /api/districts | grep -q "\"ownerFamilyName\":\"$FAMNAME\"" || fail "district owner missing"
+
+  echo "== outsider crime in district 1 pays protection tax to the vault"
+  api POST /api/auth/logout > /dev/null
+  OUTSIDER_LOGIN=$(api POST /api/auth/login "{\"username\":\"$USERNAME\",\"password\":\"hush-hush-1930\"}")
+  echo "$OUTSIDER_LOGIN" | grep -q "$USERNAME" || fail "outsider login"
+  $PSQL "DELETE FROM \"Cooldown\" WHERE \"playerId\" = (SELECT id FROM \"Player\" WHERE username='$USERNAME')"
+  TAXED=false
+  for crime in 1 2 3; do
+    RES=$(api POST "/api/crimes/$crime/attempt")
+    if echo "$RES" | grep -q '"success":true' && ! echo "$RES" | grep -q '"protectionTax":0'; then
+      TAXED=true
+      break
+    fi
+  done
+  [ "$TAXED" = true ] || fail "no crime paid protection tax: $RES"
+  VAULT=$(api3 GET /api/family | sed -n 's/.*"treasury":\([0-9]*\).*/\1/p')
+  [ "$VAULT" -gt 500 ] || fail "vault should exceed 500 after tax, got $VAULT"
+  echo "   vault now: $VAULT"
+
+  echo "== three-man heist: start, fill roles, execute"
+  api3 POST /api/heist/start '{"typeKey":"train_robbery","role":"DRIVER"}' | grep -q 'train_robbery' || fail "start heist"
+  api POST /api/auth/logout > /dev/null
+  api POST /api/auth/login "{\"username\":\"$KILLER\",\"password\":\"hush-hush-1930\"}" > /dev/null
+  HID=$(api3 GET /api/family | sed -n 's/.*"heists":\[{"id":"\([^"]*\)".*/\1/p')
+  [ -n "$HID" ] || fail "no open heist id"
+  api POST /api/heist/join "{\"heistId\":\"$HID\",\"role\":\"SAFECRACKER\"}" | grep -q 'SAFECRACKER' || fail "killer join"
+  api2 POST /api/heist/join "{\"heistId\":\"$HID\",\"role\":\"LOOKOUT\"}" | grep -q 'LOOKOUT' || fail "victim join"
+  HEIST=$(api3 POST /api/heist/execute "{\"heistId\":\"$HID\"}")
+  echo "$HEIST" | grep -q '"crew":3' || fail "execute heist: $HEIST"
+  echo "   $HEIST"
+
+  echo "== a member talks to the police (betrayal)"
+  BETRAY=$(api2 POST /api/betray)
+  echo "$BETRAY" | grep -q '"raid":' || fail "betray: $BETRAY"
+  echo "   $BETRAY"
+  VAULT2=$(api3 GET /api/family | sed -n 's/.*"treasury":\([0-9]*\).*/\1/p')
+  [ "$VAULT2" -lt "$VAULT" ] || fail "vault should shrink after the raid ($VAULT -> $VAULT2)"
+
+  echo "== family leaderboard lists $FAMNAME"
+  api3 GET /api/family/list | grep -q "$FAMNAME" || fail "family missing from list"
+else
+  echo "== psql unavailable — skipping phase 3 family checks"
+fi
+
 echo
 echo "ALL E2E CHECKS PASSED"

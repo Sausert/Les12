@@ -6,6 +6,7 @@ import { json, apiError, requirePlayer, requireAlive, requireFree, rateLimit } f
 import { applyHeat, resolveCrime } from "@/lib/game/crimes";
 import { rankForXp } from "@/lib/game/ranks";
 import { jailChance, jailDurationSec } from "@/lib/game/pvp";
+import { districtTax } from "@/lib/game/family";
 
 export async function POST(_request: Request, context: { params: Promise<{ crimeId: string }> }) {
   const player = await requirePlayer();
@@ -50,6 +51,27 @@ export async function POST(_request: Request, context: { params: Promise<{ crime
       }
 
       const outcome = resolveCrime(crime, player.heat, roll, payoutRoll);
+
+      // Protection money: crimes in an owned district pay tax to the family
+      // that runs it — unless you're one of theirs.
+      let netPayout = outcome.payout;
+      let protectionTax = 0n;
+      if (outcome.payout > 0n) {
+        const district = await tx.district.findUnique({ where: { id: player.districtId } });
+        if (district?.ownerFamilyId) {
+          const myFamily = await tx.familyMember.findUnique({ where: { playerId: player.id } });
+          if (myFamily?.familyId !== district.ownerFamilyId) {
+            const taxed = districtTax(outcome.payout, district.taxPct);
+            netPayout = taxed.net;
+            protectionTax = taxed.tax;
+            await tx.family.update({
+              where: { id: district.ownerFamilyId },
+              data: { treasury: { increment: taxed.tax } },
+            });
+          }
+        }
+      }
+
       const ranks = await tx.rank.findMany({ orderBy: { id: "asc" } });
       const newXp = player.xp + BigInt(outcome.xpGained);
       const newRank = rankForXp(ranks, newXp);
@@ -68,7 +90,7 @@ export async function POST(_request: Request, context: { params: Promise<{ crime
         where: { id: player.id },
         data: {
           xp: newXp,
-          dirtyCash: { increment: outcome.payout },
+          dirtyCash: { increment: netPayout },
           heat: newHeat,
           rankId: newRank.id,
           ...(jailedUntil ? { jailedUntil } : {}),
@@ -79,14 +101,15 @@ export async function POST(_request: Request, context: { params: Promise<{ crime
           playerId: player.id,
           crimeId: crime.id,
           success: outcome.success,
-          payout: outcome.payout,
+          payout: netPayout,
           xpGained: outcome.xpGained,
         },
       });
 
       return {
         success: outcome.success,
-        payout: outcome.payout,
+        payout: netPayout,
+        protectionTax,
         xpGained: outcome.xpGained,
         heat: newHeat,
         cooldownUntil: expiresAt.toISOString(),

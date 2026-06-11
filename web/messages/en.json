@@ -17,6 +17,7 @@
   "nav": {
     "crimes": "Crimes",
     "city": "City",
+    "family": "Family",
     "leaderboard": "Leaderboard",
     "bank": "Bank",
     "profile": "Profile"
@@ -74,6 +75,110 @@
       "chain_error": "Blockchain transaction failed; your money was restored."
     }
   },
+  "family": {
+    "title": "The Family",
+    "subtitle": "Blood doesn't make you untouchable. A family does — almost.",
+    "invitesTitle": "Invitations",
+    "accept": "Accept",
+    "decline": "Decline",
+    "createTitle": "Found a family",
+    "createDesc": "Costs {cost} OMD (seeds the vault) and requires rank {rank}.",
+    "namePlaceholder": "Family name",
+    "createButton": "Found",
+    "created": "The family is founded. Long may she live.",
+    "treasury": "Family vault",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "membersTitle": "Members ({count})",
+    "roles": {
+      "BOSS": "Don",
+      "UNDERBOSS": "Underboss",
+      "SOLDIER": "Soldier"
+    },
+    "promote": "Promote",
+    "demote": "Demote",
+    "kick": "Banish",
+    "inviteButton": "Invite",
+    "invited": "Invitation sent.",
+    "leaveButton": "Leave the family",
+    "left": "You left the family.",
+    "heistsTitle": "Heists (crew of 3)",
+    "heistStatus": {
+      "OPEN": "Open",
+      "SUCCESS": "Success",
+      "FAILED": "Failed"
+    },
+    "heistRoles": {
+      "DRIVER": "Driver",
+      "SAFECRACKER": "Safecracker",
+      "LOOKOUT": "Lookout"
+    },
+    "heistStarted": "Heist set up — waiting for your crew.",
+    "joinAs": "Join as {role}",
+    "executeHeist": "Strike",
+    "betrayTitle": "Talk to the police",
+    "betrayDesc": "Snitch anonymously: the raid costs the vault 20% and you pocket half. But if they unmask you, you're out of the family and the whole city hunts you.",
+    "betrayButton": "Betray the family",
+    "betraySuccess": "The raid happened. {reward} OMD sits under your mattress. Nobody knows a thing.",
+    "betrayExposed": "EXPOSED! You pocketed {reward} OMD, but the family knows who you are. Run.",
+    "betrayalAnonLog": "An anonymous tip cost the vault money ({reward} OMD reward).",
+    "betrayalExposedLog": "{username} was exposed as a rat.",
+    "districtsTitle": "City districts",
+    "youAreHere": "● you are here",
+    "underAttack": "⚔ turf war!",
+    "ownedBy": "Territory of {name} · {pct}% protection money",
+    "unowned": "No man's land",
+    "moveButton": "Travel",
+    "claimButton": "Claim (2000)",
+    "claimed": "The district is yours. Protection money starts flowing.",
+    "warButton": "Attack (1000)",
+    "warDeclared": "Turf war declared! It resolves in 5 minutes.",
+    "warAttacking": "You are attacking {district}",
+    "warDefending": "{district} is under attack!",
+    "rankingTitle": "Family leaderboard",
+    "rankingMeta": "{members} members · {districts} districts",
+    "noFamilies": "No families in this town yet.",
+    "errors": {
+      "rank_too_low": "Your rank is too low to lead a family.",
+      "insufficient_cash": "Not enough clean cash.",
+      "insufficient_treasury": "The family vault is too empty.",
+      "already_in_family": "Already in a family.",
+      "name_taken": "That family name already exists.",
+      "no_family": "You have no family.",
+      "not_allowed": "You don't have the rank for that.",
+      "target_not_found": "Nobody found by that name.",
+      "already_invited": "Already invited.",
+      "invite_not_found": "Invitation not found.",
+      "boss_must_transfer": "A Don doesn't walk out on his family — promote a successor first.",
+      "cannot_target_self": "That's you.",
+      "district_not_found": "That district doesn't exist.",
+      "district_owned": "That district is already claimed.",
+      "district_unowned": "You claim no man's land, you don't war over it.",
+      "own_district": "That's your own territory.",
+      "war_in_progress": "A turf war is already raging there.",
+      "already_here": "You're already there.",
+      "cooldown_active": "Patience.",
+      "heist_not_found": "That heist doesn't exist (anymore).",
+      "already_in_heist": "You're already in an open heist.",
+      "role_taken": "That role is taken.",
+      "crew_incomplete": "The crew isn't complete yet.",
+      "dead": "Dead men commit no deeds.",
+      "jailed": "You can't act from a cell."
+    }
+  },
+  "heists": {
+    "train_robbery": "Train robbery",
+    "casino_vault": "Casino vault",
+    "armored_truck": "Armored truck"
+  },
+  "districts": {
+    "slums": "The Slums",
+    "docks": "The Docks",
+    "market": "The Market",
+    "little_italy": "Little Italy",
+    "theater": "Theater District",
+    "harbor": "The Harbor"
+  },
   "death": {
     "title": "MURDERED",
     "body": "Your body floated down the river. But in this town, death is rarely the end…",
@@ -129,14 +234,38 @@
     "rankUpBody": "You are now known as {rank}.",
     "cooldownActive": "Ease off for a moment — the cops are watching.",
     "items": {
-      "pickpocket": { "name": "Pickpocketing", "desc": "A busy market, a careless tourist." },
-      "beg_streets": { "name": "Begging the streets", "desc": "Not glamorous, but safe." },
-      "rob_drunk": { "name": "Rob a drunk", "desc": "He's lost count of his money anyway." },
-      "burgle_house": { "name": "Burgle a house", "desc": "Somewhere a back door is always open." },
-      "steal_car": { "name": "Steal a car", "desc": "Gone before the owner can whistle." },
-      "extort_shop": { "name": "Extort a shop", "desc": "Nice little place. Shame if something happened to it." },
-      "hijack_truck": { "name": "Hijack a truck", "desc": "A load of liquor vanishes into the night." },
-      "rob_bank": { "name": "Rob the bank", "desc": "The big score. All or nothing." }
+      "pickpocket": {
+        "name": "Pickpocketing",
+        "desc": "A busy market, a careless tourist."
+      },
+      "beg_streets": {
+        "name": "Begging the streets",
+        "desc": "Not glamorous, but safe."
+      },
+      "rob_drunk": {
+        "name": "Rob a drunk",
+        "desc": "He's lost count of his money anyway."
+      },
+      "burgle_house": {
+        "name": "Burgle a house",
+        "desc": "Somewhere a back door is always open."
+      },
+      "steal_car": {
+        "name": "Steal a car",
+        "desc": "Gone before the owner can whistle."
+      },
+      "extort_shop": {
+        "name": "Extort a shop",
+        "desc": "Nice little place. Shame if something happened to it."
+      },
+      "hijack_truck": {
+        "name": "Hijack a truck",
+        "desc": "A load of liquor vanishes into the night."
+      },
+      "rob_bank": {
+        "name": "Rob the bank",
+        "desc": "The big score. All or nothing."
+      }
     }
   },
   "ranks": {
@@ -183,8 +312,16 @@
     "txSuccess": "Transaction confirmed",
     "viewOnExplorer": "View on explorer",
     "txsTitle": "Transactions",
-    "txKind": { "WITHDRAW": "Withdrawal", "DEPOSIT": "Deposit", "LAUNDER": "Launder" },
-    "txStatus": { "PENDING": "Pending", "CONFIRMED": "Confirmed", "FAILED": "Failed" },
+    "txKind": {
+      "WITHDRAW": "Withdrawal",
+      "DEPOSIT": "Deposit",
+      "LAUNDER": "Launder"
+    },
+    "txStatus": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "FAILED": "Failed"
+    },
     "noTxs": "No transactions yet.",
     "walletTitle": "Your wallet",
     "chainDisabled": "The blockchain link is disabled in this environment. Laundering still works; withdrawing and depositing require an active chain.",

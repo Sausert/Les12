@@ -35,12 +35,29 @@ const crimes = [
   { id: 8, key: "rob_bank", minRankId: 10, cooldownSec: 3600, baseSuccess: 35, minPayout: 2500, maxPayout: 8000, xpReward: 600, heatGain: 20 },
 ];
 
+// District keys map to i18n messages: districts.<key>
+const districts = [
+  { id: 1, key: "slums", taxPct: 5 },
+  { id: 2, key: "docks", taxPct: 5 },
+  { id: 3, key: "market", taxPct: 5 },
+  { id: 4, key: "little_italy", taxPct: 5 },
+  { id: 5, key: "theater", taxPct: 5 },
+  { id: 6, key: "harbor", taxPct: 5 },
+];
+
 async function main() {
   for (const rank of ranks) {
     await prisma.rank.upsert({ where: { id: rank.id }, update: rank, create: rank });
   }
   for (const crime of crimes) {
     await prisma.crime.upsert({ where: { id: crime.id }, update: crime, create: crime });
+  }
+  for (const district of districts) {
+    await prisma.district.upsert({
+      where: { id: district.id },
+      update: { key: district.key, taxPct: district.taxPct },
+      create: district,
+    });
   }
 
   const passwordHash = await bcrypt.hash("hush-hush-1930", 10);
@@ -52,7 +69,7 @@ async function main() {
     });
   }
 
-  console.log(`Seeded ${ranks.length} ranks, ${crimes.length} crimes, 2 test players.`);
+  console.log(`Seeded ${ranks.length} ranks, ${crimes.length} crimes, ${districts.length} districts, 2 test players.`);
 }
 
 main()

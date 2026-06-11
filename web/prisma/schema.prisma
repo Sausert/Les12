@@ -36,9 +36,114 @@ model Player {
   bountiesOnMe  BountyOrder[]  @relation("target")
   jailEvents    JailEvent[]
   identityLog   IdentityChange[]
+  districtId    Int            @default(1)
+  familyMember  FamilyMember?
+  familyInvites FamilyInvite[]
+  heistRoles    HeistRole[]
+  betrayals     Betrayal[]
   createdAt     DateTime       @default(now())
 
   @@index([xp(sort: Desc)])
+}
+
+model Family {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  treasury      BigInt         @default(0)
+  members       FamilyMember[]
+  invites       FamilyInvite[]
+  districts     District[]
+  heists        Heist[]
+  warsAttacking TurfWar[]      @relation("attacker")
+  warsDefending TurfWar[]      @relation("defender")
+  betrayals     Betrayal[]
+  createdAt     DateTime       @default(now())
+}
+
+model FamilyMember {
+  playerId String   @id
+  familyId String
+  role     String   @default("SOLDIER") // BOSS | UNDERBOSS | SOLDIER
+  player   Player   @relation(fields: [playerId], references: [id])
+  family   Family   @relation(fields: [familyId], references: [id])
+  joinedAt DateTime @default(now())
+
+  @@index([familyId])
+}
+
+model FamilyInvite {
+  id        String   @id @default(cuid())
+  familyId  String
+  playerId  String
+  family    Family   @relation(fields: [familyId], references: [id])
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([familyId, playerId])
+}
+
+model District {
+  id            Int       @id
+  key           String    @unique
+  taxPct        Int       @default(5)
+  ownerFamilyId String?
+  ownerFamily   Family?   @relation(fields: [ownerFamilyId], references: [id])
+  claimedAt     DateTime?
+  wars          TurfWar[]
+}
+
+model TurfWar {
+  id               String    @id @default(cuid())
+  districtId       Int
+  attackerFamilyId String
+  defenderFamilyId String
+  status           String    @default("PENDING") // PENDING | RESOLVED
+  endsAt           DateTime
+  winnerFamilyId   String?
+  district         District  @relation(fields: [districtId], references: [id])
+  attackerFamily   Family    @relation("attacker", fields: [attackerFamilyId], references: [id])
+  defenderFamily   Family    @relation("defender", fields: [defenderFamilyId], references: [id])
+  createdAt        DateTime  @default(now())
+
+  @@index([status, endsAt])
+}
+
+model Heist {
+  id         String      @id @default(cuid())
+  familyId   String
+  typeKey    String
+  status     String      @default("OPEN") // OPEN | SUCCESS | FAILED
+  payoutEach BigInt      @default(0)
+  family     Family      @relation(fields: [familyId], references: [id])
+  roles      HeistRole[]
+  createdAt  DateTime    @default(now())
+  executedAt DateTime?
+
+  @@index([familyId, status])
+}
+
+model HeistRole {
+  heistId  String
+  role     String // DRIVER | SAFECRACKER | LOOKOUT
+  playerId String
+  heist    Heist  @relation(fields: [heistId], references: [id])
+  player   Player @relation(fields: [playerId], references: [id])
+
+  @@id([heistId, role])
+  @@unique([heistId, playerId])
+}
+
+model Betrayal {
+  id        String   @id @default(cuid())
+  familyId  String
+  playerId  String
+  reward    BigInt
+  exposed   Boolean
+  family    Family   @relation(fields: [familyId], references: [id])
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([familyId, createdAt(sort: Desc)])
 }
 
 model KillAttempt {

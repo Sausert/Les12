@@ -49,7 +49,22 @@ Les12/
   betaling een nieuwe identiteit met 75% van je XP (open premies op je oude naam vervallen)
 - **De Stadskrant**: kill feed en arrestaties als krantenkoppen
 
-Latere fasen (families & territorium, casino & smokkel, NFT-bezittingen, seizoenen) staan
+### Families & territorium (fase 3 — dit is gebouwd)
+
+- **Families**: oprichten (rang Picciotto + 1000 OMD als startkapitaal voor de kas),
+  uitnodigingen, rollen (Don / Onderbaas / Soldaat), promoveren/verbannen, gedeelde kas
+  waaruit alleen de leiding kan opnemen
+- **Territoriumcontrole**: zes stadswijken; families claimen niemandsland (2000 OMD uit de
+  kas) en heffen 5% **protectiegeld** op elke misdaad die buitenstaanders in hun wijk plegen
+- **Turf wars**: val de wijk van een andere familie aan (1000 OMD); na 5 minuten valt de
+  beslissing op basis van de gezamenlijke rangsterkte van beide families — de verdediger
+  heeft thuisvoordeel
+- **Coöp-overvallen**: drie-mans heists (Chauffeur / Kluiskraker / Uitkijk) — treinroof,
+  casinokluis of geldwagen; slagingskans stijgt met de rangen van de crew, buit voor ieder
+- **Verraad & omertà**: praat anoniem met de politie — de inval kost de familiekas 20% en
+  jij vangt de helft, maar bij ontmaskering lig je eruit en staat de hele stad tegen je
+
+Latere fasen (casino & smokkel, NFT-bezittingen, seizoenen) staan
 beschreven in het projectplan en bouwen additief op dit schema voort.
 
 ## Snel starten (lokaal)

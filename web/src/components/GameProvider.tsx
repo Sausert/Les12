@@ -17,6 +17,8 @@ export interface MeState {
   protectedUntil: string | null;
   bountyOnMe: number;
   walletAddress: string | null;
+  family: { name: string; role: string } | null;
+  district: { id: number; key: string } | null;
   rank: { id: number; key: string };
   rankProgress: number;
   nextRank: { key: string; minXp: number } | null;

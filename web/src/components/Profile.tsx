@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
-import { LogOut } from "lucide-react";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { LogOut, Trophy } from "lucide-react";
 import { useGame } from "./GameProvider";
 
 export function Profile() {
@@ -77,6 +77,13 @@ export function Profile() {
           ))}
         </div>
       </div>
+
+      <Link
+        href="/leaderboard"
+        className="dossier flex items-center justify-center gap-2 p-3 text-sm text-gold"
+      >
+        <Trophy size={16} /> {t("nav.leaderboard")}
+      </Link>
 
       <button
         onClick={logout}

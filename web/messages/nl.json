@@ -17,6 +17,7 @@
   "nav": {
     "crimes": "Misdaden",
     "city": "Stad",
+    "family": "Familie",
     "leaderboard": "Ranglijst",
     "bank": "Bank",
     "profile": "Profiel"
@@ -74,6 +75,110 @@
       "chain_error": "Blockchain-transactie mislukt; je geld is teruggezet."
     }
   },
+  "family": {
+    "title": "De Familie",
+    "subtitle": "Bloed maakt je niet onaantastbaar. Een familie wel — bijna.",
+    "invitesTitle": "Uitnodigingen",
+    "accept": "Accepteer",
+    "decline": "Wijs af",
+    "createTitle": "Richt een familie op",
+    "createDesc": "Kost {cost} OMD (wordt de familiekas) en vereist rang {rank}.",
+    "namePlaceholder": "Familienaam",
+    "createButton": "Oprichten",
+    "created": "De familie is opgericht. Lang zal ze leven.",
+    "treasury": "Familiekas",
+    "deposit": "Stort",
+    "withdraw": "Neem op",
+    "membersTitle": "Leden ({count})",
+    "roles": {
+      "BOSS": "Don",
+      "UNDERBOSS": "Onderbaas",
+      "SOLDIER": "Soldaat"
+    },
+    "promote": "Promoveer",
+    "demote": "Degradeer",
+    "kick": "Verban",
+    "inviteButton": "Nodig uit",
+    "invited": "Uitnodiging verstuurd.",
+    "leaveButton": "Verlaat de familie",
+    "left": "Je hebt de familie verlaten.",
+    "heistsTitle": "Overvallen (crew van 3)",
+    "heistStatus": {
+      "OPEN": "Open",
+      "SUCCESS": "Geslaagd",
+      "FAILED": "Mislukt"
+    },
+    "heistRoles": {
+      "DRIVER": "Chauffeur",
+      "SAFECRACKER": "Kluiskraker",
+      "LOOKOUT": "Uitkijk"
+    },
+    "heistStarted": "Overval opgezet — wacht op je crew.",
+    "joinAs": "Doe mee als {role}",
+    "executeHeist": "Sla toe",
+    "betrayTitle": "Praten met de politie",
+    "betrayDesc": "Anoniem verlinken: de inval kost de familiekas 20% en jij vangt de helft. Maar als ze je ontmaskeren ben je de familie uit en jaagt de hele stad op je.",
+    "betrayButton": "Verraad de familie",
+    "betraySuccess": "De inval is gebeurd. {reward} OMD ligt onder je matras. Niemand weet iets.",
+    "betrayExposed": "ONTMASKERD! Je ving {reward} OMD, maar de familie weet wie je bent. Ren.",
+    "betrayalAnonLog": "Een anonieme tip kostte de kas geld ({reward} OMD beloning).",
+    "betrayalExposedLog": "{username} is ontmaskerd als verrader.",
+    "districtsTitle": "Stadswijken",
+    "youAreHere": "● jij bent hier",
+    "underAttack": "⚔ turf war!",
+    "ownedBy": "Territorium van {name} · {pct}% protectiegeld",
+    "unowned": "Niemandsland",
+    "moveButton": "Ga heen",
+    "claimButton": "Claim (2000)",
+    "claimed": "De wijk is van jullie. Protectiegeld stroomt binnen.",
+    "warButton": "Val aan (1000)",
+    "warDeclared": "Turf war verklaard! Over 5 minuten valt de beslissing.",
+    "warAttacking": "Jullie vallen {district} aan",
+    "warDefending": "{district} wordt aangevallen!",
+    "rankingTitle": "Familieranglijst",
+    "rankingMeta": "{members} leden · {districts} wijken",
+    "noFamilies": "Nog geen families in deze stad.",
+    "errors": {
+      "rank_too_low": "Je rang is te laag om een familie te leiden.",
+      "insufficient_cash": "Niet genoeg schoon geld.",
+      "insufficient_treasury": "De familiekas is te leeg.",
+      "already_in_family": "Al lid van een familie.",
+      "name_taken": "Die familienaam bestaat al.",
+      "no_family": "Je hebt geen familie.",
+      "not_allowed": "Daar heb je de rang niet voor.",
+      "target_not_found": "Niemand gevonden met die naam.",
+      "already_invited": "Al uitgenodigd.",
+      "invite_not_found": "Uitnodiging niet gevonden.",
+      "boss_must_transfer": "Een Don verlaat zijn familie niet — promoveer eerst een opvolger.",
+      "cannot_target_self": "Dat ben je zelf.",
+      "district_not_found": "Die wijk bestaat niet.",
+      "district_owned": "Die wijk is al geclaimd.",
+      "district_unowned": "Niemandsland claim je, daar voer je geen oorlog om.",
+      "own_district": "Dat is je eigen territorium.",
+      "war_in_progress": "Daar woedt al een turf war.",
+      "already_here": "Daar ben je al.",
+      "cooldown_active": "Nog even geduld.",
+      "heist_not_found": "Die overval bestaat niet (meer).",
+      "already_in_heist": "Je zit al in een openstaande overval.",
+      "role_taken": "Die rol is al bezet.",
+      "crew_incomplete": "De crew is nog niet compleet.",
+      "dead": "Dode mannen plegen geen daden.",
+      "jailed": "Vanuit de cel doe je niets."
+    }
+  },
+  "heists": {
+    "train_robbery": "Treinroof",
+    "casino_vault": "Casinokluis",
+    "armored_truck": "Geldwagen"
+  },
+  "districts": {
+    "slums": "De Sloppen",
+    "docks": "De Dokken",
+    "market": "De Markt",
+    "little_italy": "Klein Italië",
+    "theater": "Theaterbuurt",
+    "harbor": "De Haven"
+  },
   "death": {
     "title": "VERMOORD",
     "body": "Je lichaam dreef de rivier af. Maar in deze stad is de dood zelden het einde…",
@@ -129,14 +234,38 @@
     "rankUpBody": "Je staat nu bekend als {rank}.",
     "cooldownActive": "Nog even gas terugnemen — de politie kijkt mee.",
     "items": {
-      "pickpocket": { "name": "Zakkenrollen", "desc": "Een drukke markt, een onoplettende toerist." },
-      "beg_streets": { "name": "Bedelen op straat", "desc": "Niet glamoureus, wel veilig." },
-      "rob_drunk": { "name": "Dronkaard beroven", "desc": "Hij telt zijn geld toch niet meer." },
-      "burgle_house": { "name": "Inbreken", "desc": "De achterdeur staat altijd ergens open." },
-      "steal_car": { "name": "Auto stelen", "desc": "Sneller dan de eigenaar kan fluiten." },
-      "extort_shop": { "name": "Winkel afpersen", "desc": "Mooi zaakje. Zou zonde zijn als er iets mee gebeurde." },
-      "hijack_truck": { "name": "Vrachtwagen kapen", "desc": "Een lading drank verdwijnt in de nacht." },
-      "rob_bank": { "name": "Bank overvallen", "desc": "De grote klapper. Alles of niets." }
+      "pickpocket": {
+        "name": "Zakkenrollen",
+        "desc": "Een drukke markt, een onoplettende toerist."
+      },
+      "beg_streets": {
+        "name": "Bedelen op straat",
+        "desc": "Niet glamoureus, wel veilig."
+      },
+      "rob_drunk": {
+        "name": "Dronkaard beroven",
+        "desc": "Hij telt zijn geld toch niet meer."
+      },
+      "burgle_house": {
+        "name": "Inbreken",
+        "desc": "De achterdeur staat altijd ergens open."
+      },
+      "steal_car": {
+        "name": "Auto stelen",
+        "desc": "Sneller dan de eigenaar kan fluiten."
+      },
+      "extort_shop": {
+        "name": "Winkel afpersen",
+        "desc": "Mooi zaakje. Zou zonde zijn als er iets mee gebeurde."
+      },
+      "hijack_truck": {
+        "name": "Vrachtwagen kapen",
+        "desc": "Een lading drank verdwijnt in de nacht."
+      },
+      "rob_bank": {
+        "name": "Bank overvallen",
+        "desc": "De grote klapper. Alles of niets."
+      }
     }
   },
   "ranks": {
@@ -183,8 +312,16 @@
     "txSuccess": "Transactie bevestigd",
     "viewOnExplorer": "Bekijk op explorer",
     "txsTitle": "Transacties",
-    "txKind": { "WITHDRAW": "Opname", "DEPOSIT": "Storting", "LAUNDER": "Witwas" },
-    "txStatus": { "PENDING": "In behandeling", "CONFIRMED": "Bevestigd", "FAILED": "Mislukt" },
+    "txKind": {
+      "WITHDRAW": "Opname",
+      "DEPOSIT": "Storting",
+      "LAUNDER": "Witwas"
+    },
+    "txStatus": {
+      "PENDING": "In behandeling",
+      "CONFIRMED": "Bevestigd",
+      "FAILED": "Mislukt"
+    },
     "noTxs": "Nog geen transacties.",
     "walletTitle": "Jouw wallet",
     "chainDisabled": "De blockchain-koppeling staat uit in deze omgeving. Witwassen werkt gewoon; opnemen en storten vereisen een actieve chain.",
