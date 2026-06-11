@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0d0d0f"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#c9a227" stroke-width="10" opacity="0.5"/>
+  <!-- fedora -->
+  <g fill="#c9a227">
+    <ellipse cx="256" cy="312" rx="168" ry="30"/>
+    <path d="M150 312 C150 230 180 170 256 170 C332 170 362 230 362 312 C330 296 296 288 256 288 C216 288 182 296 150 312 Z"/>
+    <path d="M170 268 C220 252 292 252 342 268 L342 292 C296 276 216 276 170 292 Z" fill="#0d0d0f"/>
+  </g>
+</svg>

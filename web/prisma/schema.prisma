@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id            String         @id @default(cuid())
+  username      String         @unique
+  email         String?        @unique
+  passwordHash  String
+  locale        String         @default("nl")
+  rankId        Int            @default(1)
+  xp            BigInt         @default(0)
+  cash          BigInt         @default(500)
+  dirtyCash     BigInt         @default(0)
+  heat          Int            @default(0)
+  walletAddress String?        @unique
+  walletKeyEnc  String?
+  isDead        Boolean        @default(false)
+  rank          Rank           @relation(fields: [rankId], references: [id])
+  crimeAttempts CrimeAttempt[]
+  cooldowns     Cooldown[]
+  chainTxs      ChainTx[]
+  createdAt     DateTime       @default(now())
+
+  @@index([xp(sort: Desc)])
+}
+
+model Rank {
+  id      Int      @id
+  key     String   @unique
+  minXp   BigInt
+  players Player[]
+}
+
+model Crime {
+  id          Int            @id
+  key         String         @unique
+  minRankId   Int
+  cooldownSec Int
+  baseSuccess Int // percentage 1-100 before heat/rank modifiers
+  minPayout   Int
+  maxPayout   Int
+  xpReward    Int
+  heatGain    Int
+  attempts    CrimeAttempt[]
+}
+
+model CrimeAttempt {
+  id        String   @id @default(cuid())
+  playerId  String
+  crimeId   Int
+  success   Boolean
+  payout    BigInt
+  xpGained  Int
+  player    Player   @relation(fields: [playerId], references: [id])
+  crime     Crime    @relation(fields: [crimeId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([playerId, createdAt(sort: Desc)])
+}
+
+model Cooldown {
+  playerId  String
+  key       String
+  expiresAt DateTime
+  player    Player   @relation(fields: [playerId], references: [id])
+
+  @@id([playerId, key])
+}
+
+model ChainTx {
+  id        String   @id @default(cuid())
+  playerId  String
+  kind      String // WITHDRAW | DEPOSIT | LAUNDER
+  amount    BigInt
+  txHash    String?  @unique
+  status    String   @default("PENDING") // PENDING | CONFIRMED | FAILED
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([playerId, createdAt(sort: Desc)])
+}
