@@ -18,8 +18,15 @@ export const gameChain = defineChain({
       : undefined,
 });
 
-export const tokenAddress = (deployments.omertaToken ?? null) as Address | null;
-export const bankAddress = (deployments.bank ?? null) as Address | null;
+const addresses = deployments as {
+  omertaToken: string | null;
+  bank: string | null;
+  bounty?: string | null;
+};
+
+export const tokenAddress = (addresses.omertaToken ?? null) as Address | null;
+export const bankAddress = (addresses.bank ?? null) as Address | null;
+export const bountyAddress = (addresses.bounty ?? null) as Address | null;
 
 export const publicClient = createPublicClient({ chain: gameChain, transport: http() });
 

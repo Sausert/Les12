@@ -25,6 +25,12 @@ async function main() {
   const bank = await hre.viem.deployContract("Bank", [token.address]);
   console.log(`Bank: ${bank.address}`);
 
+  const bounty = await hre.viem.deployContract("Bounty", [
+    token.address,
+    deployer.account.address,
+  ]);
+  console.log(`Bounty: ${bounty.address}`);
+
   const outPath = join(__dirname, "..", "..", "web", "src", "lib", "chain", "deployments.json");
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(
@@ -35,6 +41,7 @@ async function main() {
         chainId: hre.network.config.chainId ?? 31337,
         omertaToken: token.address,
         bank: bank.address,
+        bounty: bounty.address,
         deployedAt: new Date().toISOString(),
       },
       null,

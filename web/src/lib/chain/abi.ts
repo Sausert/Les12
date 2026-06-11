@@ -38,6 +38,38 @@ export const omertaTokenAbi = [
   },
 ] as const;
 
+export const bountyAbi = [
+  {
+    type: "function",
+    name: "fund",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "target", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "claim",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "target", type: "address" },
+      { name: "killer", type: "address" },
+      { name: "nonce", type: "uint256" },
+      { name: "signature", type: "bytes" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "pots",
+    stateMutability: "view",
+    inputs: [{ name: "target", type: "address" }],
+    outputs: [{ type: "uint256" }],
+  },
+] as const;
+
 export const bankAbi = [
   {
     type: "function",

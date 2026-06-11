@@ -2,10 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Skull, Trophy, Landmark, UserRound } from "lucide-react";
+import { Skull, Crosshair, Trophy, Landmark, UserRound } from "lucide-react";
 
 const tabs = [
   { href: "/", key: "crimes", icon: Skull },
+  { href: "/city", key: "city", icon: Crosshair },
   { href: "/leaderboard", key: "leaderboard", icon: Trophy },
   { href: "/bank", key: "bank", icon: Landmark },
   { href: "/profile", key: "profile", icon: UserRound },
@@ -17,7 +18,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md border-t border-gold/20 bg-night/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-5">
         {tabs.map(({ href, key, icon: Icon }) => {
           const active = pathname === href;
           return (

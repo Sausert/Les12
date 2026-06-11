@@ -23,6 +23,20 @@ export async function requirePlayer(): Promise<Player | NextResponse> {
   return player;
 }
 
+/** Dead players can only look at the world (and respawn). */
+export function requireAlive(player: Player): NextResponse | null {
+  if (player.isDead) return apiError(403, "dead");
+  return null;
+}
+
+/** Jailed players can't act until released or bribed out. */
+export function requireFree(player: Player): NextResponse | null {
+  if (player.jailedUntil && player.jailedUntil > new Date()) {
+    return apiError(403, "jailed", { jailedUntil: player.jailedUntil.toISOString() });
+  }
+  return null;
+}
+
 // Minimal in-memory rate limiter: max 20 requests per 10s per player.
 const buckets = new Map<string, { count: number; resetAt: number }>();
 

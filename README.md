@@ -14,7 +14,7 @@ De chain wordt alleen geraakt bij opnemen (mint naar je wallet) en storten (burn
 
 ```
 Les12/
-├── contracts/        Hardhat + Solidity (OmertaToken ERC-20, Bank)
+├── contracts/        Hardhat + Solidity (OmertaToken ERC-20, Bank, Bounty-escrow)
 ├── web/              Next.js 16 PWA (App Router, Tailwind v4, Prisma, viem)
 └── docker-compose.yml  PostgreSQL 16
 ```
@@ -33,8 +33,24 @@ Les12/
   heat-gloed, krantenkop bij promotie)
 - **i18n**: Nederlands + Engels, per speler instelbaar
 
-Latere fasen (PvP & bounties, families & territorium, casino & smokkel, NFT-bezittingen,
-seizoenen) staan beschreven in het projectplan en bouwen additief op dit schema voort.
+### PvP & kills (fase 2 — dit is gebouwd)
+
+- **Opsporen & liquideren**: spoor een speler op (cooldown), koop kogels (cash sink) en vuur;
+  benodigde kogels schalen met de rang van het doelwit
+- **Bloedgeld**: een geslaagde moord levert 60% van het vermogen van het slachtoffer op
+  (als zwart geld); het slachtoffer houdt 40%
+- **Bescherming**: huur bodyguards (24u) die het aantal benodigde kogels verdubbelen
+- **On-chain premiejacht**: zet een premie op iemands hoofd — het bedrag wordt als OMD
+  gelockt in het `Bounty`-escrowcontract; bij een bevestigde moord tekent de server een
+  **EIP-712 kill-attest** en wordt de pot on-chain uitbetaald aan de killer
+- **Gevangenis**: mislukte misdaden bij hoge heat → de cel; koop de corrupte agent om,
+  of laat een medespeler een uitbraak wagen (risico: zelf de cel in)
+- **Dood & getuigenbescherming**: na je dood kies je — opnieuw onderaan beginnen, of tegen
+  betaling een nieuwe identiteit met 75% van je XP (open premies op je oude naam vervallen)
+- **De Stadskrant**: kill feed en arrestaties als krantenkoppen
+
+Latere fasen (families & territorium, casino & smokkel, NFT-bezittingen, seizoenen) staan
+beschreven in het projectplan en bouwen additief op dit schema voort.
 
 ## Snel starten (lokaal)
 

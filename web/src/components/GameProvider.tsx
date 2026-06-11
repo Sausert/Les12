@@ -10,10 +10,17 @@ export interface MeState {
   cash: number;
   dirtyCash: number;
   heat: number;
+  bullets: number;
+  isDead: boolean;
+  jailedUntil: string | null;
+  bribeCost: number | null;
+  protectedUntil: string | null;
+  bountyOnMe: number;
   walletAddress: string | null;
   rank: { id: number; key: string };
   rankProgress: number;
   nextRank: { key: string; minXp: number } | null;
+  witnessProtection: { cost: number; xpKeptPct: number };
   cooldowns: { key: string; expiresAt: string }[];
 }
 

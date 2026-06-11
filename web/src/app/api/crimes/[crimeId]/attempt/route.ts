@@ -2,14 +2,17 @@ import { NextResponse } from "next/server";
 import { randomInt } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { json, apiError, requirePlayer, rateLimit } from "@/lib/api";
+import { json, apiError, requirePlayer, requireAlive, requireFree, rateLimit } from "@/lib/api";
 import { applyHeat, resolveCrime } from "@/lib/game/crimes";
 import { rankForXp } from "@/lib/game/ranks";
+import { jailChance, jailDurationSec } from "@/lib/game/pvp";
 
 export async function POST(_request: Request, context: { params: Promise<{ crimeId: string }> }) {
   const player = await requirePlayer();
   if (player instanceof NextResponse) return player;
   if (!rateLimit(player.id)) return apiError(429, "rate_limited");
+  const blocked = requireAlive(player) ?? requireFree(player);
+  if (blocked) return blocked;
 
   const { crimeId: crimeIdRaw } = await context.params;
   const crimeId = Number.parseInt(crimeIdRaw, 10);
@@ -22,6 +25,7 @@ export async function POST(_request: Request, context: { params: Promise<{ crime
   // All randomness is rolled server-side; the client only sends intent.
   const roll = randomInt(0, 100);
   const payoutRoll = randomInt(0, 1_000_000) / 1_000_000;
+  const jailRoll = randomInt(0, 100);
 
   try {
     const result = await db.$transaction(async (tx) => {
@@ -49,14 +53,25 @@ export async function POST(_request: Request, context: { params: Promise<{ crime
       const ranks = await tx.rank.findMany({ orderBy: { id: "asc" } });
       const newXp = player.xp + BigInt(outcome.xpGained);
       const newRank = rankForXp(ranks, newXp);
+      const newHeat = applyHeat(player.heat, outcome.heatGained);
+
+      // A failed crime with the cops on your tail can land you in a cell.
+      let jailedUntil: Date | null = null;
+      if (!outcome.success && jailRoll < jailChance(newHeat)) {
+        jailedUntil = new Date(now.getTime() + jailDurationSec(crime.heatGain) * 1000);
+        await tx.jailEvent.create({
+          data: { playerId: player.id, reason: "CRIME_FAILED", until: jailedUntil },
+        });
+      }
 
       await tx.player.update({
         where: { id: player.id },
         data: {
           xp: newXp,
           dirtyCash: { increment: outcome.payout },
-          heat: applyHeat(player.heat, outcome.heatGained),
+          heat: newHeat,
           rankId: newRank.id,
+          ...(jailedUntil ? { jailedUntil } : {}),
         },
       });
       await tx.crimeAttempt.create({
@@ -73,8 +88,9 @@ export async function POST(_request: Request, context: { params: Promise<{ crime
         success: outcome.success,
         payout: outcome.payout,
         xpGained: outcome.xpGained,
-        heat: applyHeat(player.heat, outcome.heatGained),
+        heat: newHeat,
         cooldownUntil: expiresAt.toISOString(),
+        jailedUntil: jailedUntil?.toISOString() ?? null,
         rankUp: newRank.id > player.rankId ? { id: newRank.id, key: newRank.key } : null,
       };
     });

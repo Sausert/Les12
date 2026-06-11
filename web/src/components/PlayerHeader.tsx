@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Banknote, Coins, Flame } from "lucide-react";
+import { Banknote, Coins, Flame, Target } from "lucide-react";
 import { useGame } from "./GameProvider";
 import { RollingNumber } from "./RollingNumber";
 
@@ -29,6 +29,10 @@ export function PlayerHeader() {
         <span className="flex items-center gap-1 text-ivory-dim" title={t("common.dirtyCash")}>
           <Coins size={15} />
           <RollingNumber value={me?.dirtyCash ?? 0} />
+        </span>
+        <span className="flex items-center gap-1 text-ivory-dim" title={t("common.bullets")}>
+          <Target size={15} />
+          <RollingNumber value={me?.bullets ?? 0} />
         </span>
         <span
           className={`ml-auto flex items-center gap-1 ${(me?.heat ?? 0) > 50 ? "text-blood-bright" : "text-ivory-dim"}`}

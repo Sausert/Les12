@@ -21,13 +21,93 @@ model Player {
   walletAddress String?        @unique
   walletKeyEnc  String?
   isDead        Boolean        @default(false)
+  diedAt        DateTime?
+  bullets       Int            @default(0)
+  jailedUntil   DateTime?
   rank          Rank           @relation(fields: [rankId], references: [id])
   crimeAttempts CrimeAttempt[]
   cooldowns     Cooldown[]
   chainTxs      ChainTx[]
+  killsMade     KillAttempt[]  @relation("attacker")
+  killsSuffered KillAttempt[]  @relation("victim")
+  searches      Search[]       @relation("seeker")
+  protection    Protection?
+  bountiesSet   BountyOrder[]  @relation("placer")
+  bountiesOnMe  BountyOrder[]  @relation("target")
+  jailEvents    JailEvent[]
+  identityLog   IdentityChange[]
   createdAt     DateTime       @default(now())
 
   @@index([xp(sort: Desc)])
+}
+
+model KillAttempt {
+  id          String   @id @default(cuid())
+  attackerId  String
+  victimId    String
+  bulletsUsed Int
+  success     Boolean
+  bloodMoney  BigInt   @default(0)
+  bountyPaid  BigInt   @default(0)
+  attacker    Player   @relation("attacker", fields: [attackerId], references: [id])
+  victim      Player   @relation("victim", fields: [victimId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model Search {
+  seekerId  String
+  targetId  String
+  expiresAt DateTime
+  seeker    Player   @relation("seeker", fields: [seekerId], references: [id])
+
+  @@id([seekerId, targetId])
+}
+
+model Protection {
+  playerId  String   @id
+  expiresAt DateTime
+  player    Player   @relation(fields: [playerId], references: [id])
+}
+
+model BountyOrder {
+  id          String   @id @default(cuid())
+  placerId    String
+  targetId    String
+  amount      BigInt
+  status      String   @default("OPEN") // OPEN | CLAIMED
+  fundTxHash  String?
+  claimTxHash String?
+  claimedById String?
+  placer      Player   @relation("placer", fields: [placerId], references: [id])
+  target      Player   @relation("target", fields: [targetId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([targetId, status])
+}
+
+model JailEvent {
+  id        String   @id @default(cuid())
+  playerId  String
+  reason    String // CRIME_FAILED | BREAKOUT_FAILED
+  until     DateTime
+  freedBy   String? // BRIBE | BREAKOUT | SERVED
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model IdentityChange {
+  id          String   @id @default(cuid())
+  playerId    String
+  oldUsername String
+  newUsername String
+  xpKept      BigInt
+  cost        BigInt
+  player      Player   @relation(fields: [playerId], references: [id])
+  createdAt   DateTime @default(now())
 }
 
 model Rank {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { Address } from "viem";
 import { db } from "@/lib/db";
-import { json, apiError, requirePlayer, rateLimit } from "@/lib/api";
+import { json, apiError, requirePlayer, requireAlive, rateLimit } from "@/lib/api";
 import { chainEnabled, explorerTxUrl } from "@/lib/chain/client";
 import { depositFor, onChainBalance } from "@/lib/chain/token";
 
@@ -12,6 +12,8 @@ export async function POST(request: Request) {
   const player = await requirePlayer();
   if (player instanceof NextResponse) return player;
   if (!rateLimit(player.id)) return apiError(429, "rate_limited");
+  const blocked = requireAlive(player);
+  if (blocked) return blocked;
   if (!chainEnabled) return apiError(503, "chain_disabled");
   if (!player.walletAddress) return apiError(400, "no_wallet");
 

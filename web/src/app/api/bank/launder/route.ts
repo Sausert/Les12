@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { json, apiError, requirePlayer, rateLimit } from "@/lib/api";
+import { json, apiError, requirePlayer, requireAlive, rateLimit } from "@/lib/api";
 import { resolveLaunder, LAUNDER_FEE_PCT } from "@/lib/game/bank";
 
 const bodySchema = z.object({ amount: z.number().int().positive().max(1_000_000_000) });
@@ -10,6 +10,8 @@ export async function POST(request: Request) {
   const player = await requirePlayer();
   if (player instanceof NextResponse) return player;
   if (!rateLimit(player.id)) return apiError(429, "rate_limited");
+  const blocked = requireAlive(player);
+  if (blocked) return blocked;
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return apiError(400, "invalid_input");
