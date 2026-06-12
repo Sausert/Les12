@@ -109,6 +109,13 @@ Les12/
 
 Daarmee zijn alle zes fasen van het projectplan gebouwd. 🎉
 
+## Deployment
+
+Zie **[DEPLOYMENT.md](./DEPLOYMENT.md)** voor de volledige productie-handleiding:
+secrets genereren (`./scripts/generate-secrets.sh`), database (Neon), contracten naar
+Sonic Blaze, hosting (Vercel of Docker via `docker-compose.prod.yml`), verificatie met
+`contracts/scripts/smoke.ts`, en beheer (seizoenscron, back-ups, sleutelrotatie).
+
 ## Snel starten (lokaal)
 
 Vereist: Node 22+, PostgreSQL (of Docker).
