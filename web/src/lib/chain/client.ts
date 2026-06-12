@@ -4,17 +4,17 @@ import deployments from "./deployments.json";
 
 export const chainEnabled = process.env.CHAIN_ENABLED === "true";
 
-const chainId = Number(process.env.CHAIN_ID ?? 57054);
-const rpcUrl = process.env.CHAIN_RPC_URL ?? "https://rpc.blaze.soniclabs.com";
+const chainId = Number(process.env.CHAIN_ID ?? 14601);
+const rpcUrl = process.env.CHAIN_RPC_URL ?? "https://rpc.testnet.soniclabs.com";
 
 export const gameChain = defineChain({
   id: chainId,
-  name: chainId === 57054 ? "Sonic Blaze Testnet" : chainId === 146 ? "Sonic" : "Local",
+  name: chainId === 14601 ? "Sonic Testnet" : chainId === 146 ? "Sonic" : "Local",
   nativeCurrency: { name: "Sonic", symbol: "S", decimals: 18 },
   rpcUrls: { default: { http: [rpcUrl] } },
   blockExplorers:
-    chainId === 57054
-      ? { default: { name: "Sonic Blaze Explorer", url: "https://testnet.sonicscan.org" } }
+    chainId === 14601
+      ? { default: { name: "Sonic Testnet Explorer", url: "https://testnet.sonicscan.org" } }
       : undefined,
 });
 

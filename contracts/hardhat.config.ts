@@ -27,9 +27,9 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    sonicBlaze: {
-      url: process.env.SONIC_BLAZE_RPC ?? "https://rpc.blaze.soniclabs.com",
-      chainId: 57054,
+    sonicTestnet: {
+      url: process.env.SONIC_TESTNET_RPC ?? "https://rpc.testnet.soniclabs.com",
+      chainId: 14601,
       accounts: TREASURY_PRIVATE_KEY ? [TREASURY_PRIVATE_KEY] : [],
     },
   },

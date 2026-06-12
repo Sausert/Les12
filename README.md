@@ -4,7 +4,7 @@ Een mobiele maffia-MMO in de stijl van [barafranca.nl](https://barafranca.nl) (O
 economie op de **Sonic blockchain**. Misdaden plegen, rangen klimmen, zwart geld witwassen en je
 vermogen als **OMD-token** (Omerta Dollar, ERC-20) naar je eigen wallet halen.
 
-> ⚠️ Dit is een leerproject voor het **Sonic Blaze testnet** — er gaat geen echt geld in om.
+> ⚠️ Dit is een leerproject voor het **Sonic testnet** — er gaat geen echt geld in om.
 
 ## Architectuur
 
@@ -113,7 +113,7 @@ Daarmee zijn alle zes fasen van het projectplan gebouwd. 🎉
 
 Zie **[DEPLOYMENT.md](./DEPLOYMENT.md)** voor de volledige productie-handleiding:
 secrets genereren (`./scripts/generate-secrets.sh`), database (Neon), contracten naar
-Sonic Blaze, hosting (Vercel of Docker via `docker-compose.prod.yml`), verificatie met
+Sonic testnet, hosting (Vercel of Docker via `docker-compose.prod.yml`), verificatie met
 `contracts/scripts/smoke.ts`, en beheer (seizoenscron, back-ups, sleutelrotatie).
 
 ## Snel starten (lokaal)
@@ -162,17 +162,17 @@ TREASURY_PRIVATE_KEY="<hardhat account #0 key, zie .env.example>"
 
 Herstart de app (bij `npm start` ook eerst opnieuw `npm run build`).
 
-### Optie B — Sonic Blaze testnet
+### Optie B — Sonic testnet
 
 1. Maak een treasury-keypair en vraag native **S** (gas) aan via de
    [Sonic faucet](https://testnet.soniclabs.com)
 2. Deploy:
    ```bash
    cd contracts
-   TREASURY_PRIVATE_KEY=0x... npx hardhat run scripts/deploy.ts --network sonicBlaze
+   TREASURY_PRIVATE_KEY=0x... npx hardhat run scripts/deploy.ts --network sonicTestnet
    ```
-3. In `web/.env`: `CHAIN_ENABLED="true"`, `CHAIN_RPC_URL="https://rpc.blaze.soniclabs.com"`,
-   `CHAIN_ID="57054"` en dezelfde `TREASURY_PRIVATE_KEY`
+3. In `web/.env`: `CHAIN_ENABLED="true"`, `CHAIN_RPC_URL="https://rpc.testnet.soniclabs.com"`,
+   `CHAIN_ID="14601"` en dezelfde `TREASURY_PRIVATE_KEY`
 4. Withdraw-transacties zijn nu zichtbaar op [testnet.sonicscan.org](https://testnet.sonicscan.org)
 
 ## Testen

@@ -6,7 +6,7 @@ import deployments from "../../web/src/lib/chain/deployments.json";
  * Post-deploy smoke test: checks that every contract has code at its address,
  * mints 1 OMD from the treasury to itself and reads the balance back.
  *
- *   TREASURY_PRIVATE_KEY=0x… npx hardhat run scripts/smoke.ts --network sonicBlaze
+ *   TREASURY_PRIVATE_KEY=0x… npx hardhat run scripts/smoke.ts --network sonicTestnet
  */
 async function main() {
   const [treasury] = await hre.viem.getWalletClients();

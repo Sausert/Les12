@@ -1,7 +1,7 @@
 # Deployment-handleiding — Sonic Omerta
 
 Dit document beschrijft stap voor stap hoe je Sonic Omerta productieklaar opzet:
-smart contracts op het **Sonic Blaze testnet**, de database, de webapp en het beheer
+smart contracts op het **Sonic testnet**, de database, de webapp en het beheer
 daarna. Volg de stappen in volgorde; elke stap bouwt op de vorige.
 
 > ⚠️ Dit is een testnet-project. Zet **nooit** echt geld (mainnet) in zonder een
@@ -17,7 +17,7 @@ daarna. Volg de stappen in volgorde; elke stap bouwt op de vorige.
 └─────────────┘           │  - game-API's    │          └────────────┘
                           │  - custodial     │
                           │    wallets       │   RPC    ┌────────────────────┐
-                          │  - treasury-key  │ ───────► │ Sonic Blaze testnet│
+                          │  - treasury-key  │ ───────► │ Sonic testnet      │
                           └──────────────────┘          │  7 contracten      │
                                                         └────────────────────┘
 ```
@@ -36,7 +36,7 @@ daarna. Volg de stappen in volgorde; elke stap bouwt op de vorige.
 | Node.js 22+ en npm | builds, deploy-scripts |
 | Een PostgreSQL-database | [Neon](https://neon.tech) (aanbevolen, gratis tier), Supabase, of eigen server |
 | Een host voor Next.js | [Vercel](https://vercel.com) (aanbevolen) of eigen VPS met Docker |
-| Native **S** op Sonic Blaze | gas voor de treasury — gratis via de [Sonic-faucet](https://testnet.soniclabs.com) |
+| Native **S** op Sonic testnet | gas voor de treasury — gratis via de [Sonic-faucet](https://testnet.soniclabs.com) |
 
 ---
 
@@ -81,7 +81,7 @@ nooit live data zoals marktreserves.
 
 ---
 
-## Stap 3 — Treasury financieren (Sonic Blaze)
+## Stap 3 — Treasury financieren (Sonic testnet)
 
 1. Ga naar de faucet: **https://testnet.soniclabs.com**
 2. Vraag native **S** aan voor het treasury-adres uit stap 1.
@@ -93,7 +93,7 @@ bij en hergebruik dezelfde key.
 
 ---
 
-## Stap 4 — Contracten deployen naar Sonic Blaze
+## Stap 4 — Contracten deployen naar Sonic testnet
 
 > De RPC moet bereikbaar zijn vanaf je machine (vanuit sommige CI-/sandboxomgevingen is
 > hij geblokkeerd — draai dit dan lokaal).
@@ -103,7 +103,7 @@ cd contracts
 npm install
 npx hardhat test                       # 17 tests moeten slagen vóór elke deploy
 
-TREASURY_PRIVATE_KEY=0x… npx hardhat run scripts/deploy.ts --network sonicBlaze
+TREASURY_PRIVATE_KEY=0x… npx hardhat run scripts/deploy.ts --network sonicTestnet
 ```
 
 De deploy zet **zeven contracten** (OmertaToken, Bank, Bounty, OmertaItems,
@@ -114,7 +114,7 @@ serverbundel gebakken.
 Verifieer de deploy direct met de smoke-test (mint 1 OMD en lees hem terug):
 
 ```bash
-TREASURY_PRIVATE_KEY=0x… npx hardhat run scripts/smoke.ts --network sonicBlaze
+TREASURY_PRIVATE_KEY=0x… npx hardhat run scripts/smoke.ts --network sonicTestnet
 ```
 
 Bekijk de transacties op https://testnet.sonicscan.org.
@@ -157,8 +157,8 @@ opstarten en serveert op poort 3000. Zet er een reverse proxy met TLS voor
 | `WALLET_ENC_KEY` | uit stap 1 | exact 32 bytes hex (64 hex-tekens) |
 | `ADMIN_SECRET` | uit stap 1 | |
 | `CHAIN_ENABLED` | `true` | `false` = spel zonder chain (bank/veiling uit) |
-| `CHAIN_RPC_URL` | `https://rpc.blaze.soniclabs.com` | |
-| `CHAIN_ID` | `57054` | Sonic Blaze |
+| `CHAIN_RPC_URL` | `https://rpc.testnet.soniclabs.com` | |
+| `CHAIN_ID` | `14601` | Sonic testnet |
 | `TREASURY_PRIVATE_KEY` | uit stap 1 | dezelfde key als de deploy! |
 
 > **Belangrijk:** de chain-adressen komen uit het ge-committe `deployments.json` en
