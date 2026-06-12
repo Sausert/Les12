@@ -1,0 +1,384 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id            String         @id @default(cuid())
+  username      String         @unique
+  email         String?        @unique
+  passwordHash  String
+  locale        String         @default("nl")
+  rankId        Int            @default(1)
+  xp            BigInt         @default(0)
+  cash          BigInt         @default(500)
+  dirtyCash     BigInt         @default(0)
+  heat          Int            @default(0)
+  walletAddress String?        @unique
+  walletKeyEnc  String?
+  isDead        Boolean        @default(false)
+  diedAt        DateTime?
+  bullets       Int            @default(0)
+  jailedUntil   DateTime?
+  rank          Rank           @relation(fields: [rankId], references: [id])
+  crimeAttempts CrimeAttempt[]
+  cooldowns     Cooldown[]
+  chainTxs      ChainTx[]
+  killsMade     KillAttempt[]  @relation("attacker")
+  killsSuffered KillAttempt[]  @relation("victim")
+  searches      Search[]       @relation("seeker")
+  protection    Protection?
+  bountiesSet   BountyOrder[]  @relation("placer")
+  bountiesOnMe  BountyOrder[]  @relation("target")
+  jailEvents    JailEvent[]
+  identityLog   IdentityChange[]
+  districtId    Int            @default(1)
+  familyMember  FamilyMember?
+  familyInvites FamilyInvite[]
+  heistRoles    HeistRole[]
+  betrayals     Betrayal[]
+  casinoRounds  CasinoRound[]
+  inventory     Inventory[]
+  retiredAt     DateTime?
+  items         Item[]
+  auctionsSold  Auction[]      @relation("auctionSeller")
+  auctionsBid   Auction[]      @relation("auctionBidder")
+  payoutAddress String? // linked external wallet (signature-verified)
+  seasonResults SeasonResult[]
+  createdAt     DateTime       @default(now())
+
+  @@index([xp(sort: Desc)])
+}
+
+model Season {
+  id        Int            @id
+  status    String         @default("ACTIVE") // ACTIVE | ENDED
+  startedAt DateTime       @default(now())
+  endedAt   DateTime?
+  results   SeasonResult[]
+}
+
+model SeasonResult {
+  seasonId     Int
+  playerId     String
+  position     Int
+  xp           BigInt
+  username     String // frozen at season end (identities change)
+  trophyTokenId BigInt?
+  trophyTxHash String?
+  season       Season  @relation(fields: [seasonId], references: [id])
+  player       Player  @relation(fields: [playerId], references: [id])
+
+  @@id([seasonId, position])
+}
+
+model ItemType {
+  id          Int    @id
+  key         String @unique
+  category    String // WEAPON | CAR | PROPERTY
+  price       BigInt
+  effectPct   Int    @default(0) // WEAPON: fewer bullets needed · CAR: shorter travel cooldown
+  yieldPerDay Int    @default(0) // PROPERTY: daily clean-cash rent
+  items       Item[]
+}
+
+model Item {
+  id          String    @id @default(cuid())
+  itemTypeId  Int
+  ownerId     String?
+  tokenId     BigInt?   @unique
+  mintTxHash  String?
+  escrowed    Boolean   @default(false) // held by the auction house
+  lastYieldAt DateTime  @default(now())
+  itemType    ItemType  @relation(fields: [itemTypeId], references: [id])
+  owner       Player?   @relation(fields: [ownerId], references: [id])
+  auctions    Auction[]
+  createdAt   DateTime  @default(now())
+
+  @@index([ownerId])
+}
+
+model Auction {
+  id           String    @id @default(cuid())
+  onchainId    BigInt?   @unique
+  itemId       String
+  sellerId     String
+  startPrice   BigInt
+  highBid      BigInt    @default(0)
+  highBidderId String?
+  endsAt       DateTime
+  status       String    @default("OPEN") // OPEN | SETTLED
+  settleTxHash String?
+  item         Item      @relation(fields: [itemId], references: [id])
+  seller       Player    @relation("auctionSeller", fields: [sellerId], references: [id])
+  highBidder   Player?   @relation("auctionBidder", fields: [highBidderId], references: [id])
+  createdAt    DateTime  @default(now())
+
+  @@index([status, endsAt])
+}
+
+model CasinoRound {
+  id             String    @id @default(cuid())
+  playerId       String
+  game           String? // DICE | ROULETTE | BLACKJACK | VIDEO_POKER
+  bet            BigInt    @default(0)
+  serverSeed     String
+  serverSeedHash String
+  clientSeed     String?
+  state          Json?
+  outcome        Json?
+  status         String    @default("COMMITTED") // COMMITTED | IN_PLAY | SETTLED
+  payout         BigInt    @default(0)
+  player         Player    @relation(fields: [playerId], references: [id])
+  createdAt      DateTime  @default(now())
+  settledAt      DateTime?
+
+  @@index([playerId, createdAt(sort: Desc)])
+}
+
+model MarketPool {
+  districtId   Int
+  goodsKey     String // whiskey | cigars | morphine
+  goodsReserve BigInt
+  cashReserve  BigInt
+
+  @@id([districtId, goodsKey])
+}
+
+model Inventory {
+  playerId String
+  goodsKey String
+  qty      Int    @default(0)
+  player   Player @relation(fields: [playerId], references: [id])
+
+  @@id([playerId, goodsKey])
+}
+
+model Family {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  treasury      BigInt         @default(0)
+  members       FamilyMember[]
+  invites       FamilyInvite[]
+  districts     District[]
+  heists        Heist[]
+  warsAttacking TurfWar[]      @relation("attacker")
+  warsDefending TurfWar[]      @relation("defender")
+  betrayals     Betrayal[]
+  createdAt     DateTime       @default(now())
+}
+
+model FamilyMember {
+  playerId String   @id
+  familyId String
+  role     String   @default("SOLDIER") // BOSS | UNDERBOSS | SOLDIER
+  player   Player   @relation(fields: [playerId], references: [id])
+  family   Family   @relation(fields: [familyId], references: [id])
+  joinedAt DateTime @default(now())
+
+  @@index([familyId])
+}
+
+model FamilyInvite {
+  id        String   @id @default(cuid())
+  familyId  String
+  playerId  String
+  family    Family   @relation(fields: [familyId], references: [id])
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([familyId, playerId])
+}
+
+model District {
+  id            Int       @id
+  key           String    @unique
+  taxPct        Int       @default(5)
+  ownerFamilyId String?
+  ownerFamily   Family?   @relation(fields: [ownerFamilyId], references: [id])
+  claimedAt     DateTime?
+  wars          TurfWar[]
+}
+
+model TurfWar {
+  id               String    @id @default(cuid())
+  districtId       Int
+  attackerFamilyId String
+  defenderFamilyId String
+  status           String    @default("PENDING") // PENDING | RESOLVED
+  endsAt           DateTime
+  winnerFamilyId   String?
+  district         District  @relation(fields: [districtId], references: [id])
+  attackerFamily   Family    @relation("attacker", fields: [attackerFamilyId], references: [id])
+  defenderFamily   Family    @relation("defender", fields: [defenderFamilyId], references: [id])
+  createdAt        DateTime  @default(now())
+
+  @@index([status, endsAt])
+}
+
+model Heist {
+  id         String      @id @default(cuid())
+  familyId   String
+  typeKey    String
+  status     String      @default("OPEN") // OPEN | SUCCESS | FAILED
+  payoutEach BigInt      @default(0)
+  family     Family      @relation(fields: [familyId], references: [id])
+  roles      HeistRole[]
+  createdAt  DateTime    @default(now())
+  executedAt DateTime?
+
+  @@index([familyId, status])
+}
+
+model HeistRole {
+  heistId  String
+  role     String // DRIVER | SAFECRACKER | LOOKOUT
+  playerId String
+  heist    Heist  @relation(fields: [heistId], references: [id])
+  player   Player @relation(fields: [playerId], references: [id])
+
+  @@id([heistId, role])
+  @@unique([heistId, playerId])
+}
+
+model Betrayal {
+  id        String   @id @default(cuid())
+  familyId  String
+  playerId  String
+  reward    BigInt
+  exposed   Boolean
+  family    Family   @relation(fields: [familyId], references: [id])
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([familyId, createdAt(sort: Desc)])
+}
+
+model KillAttempt {
+  id          String   @id @default(cuid())
+  attackerId  String
+  victimId    String
+  bulletsUsed Int
+  success     Boolean
+  bloodMoney  BigInt   @default(0)
+  bountyPaid  BigInt   @default(0)
+  attacker    Player   @relation("attacker", fields: [attackerId], references: [id])
+  victim      Player   @relation("victim", fields: [victimId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model Search {
+  seekerId  String
+  targetId  String
+  expiresAt DateTime
+  seeker    Player   @relation("seeker", fields: [seekerId], references: [id])
+
+  @@id([seekerId, targetId])
+}
+
+model Protection {
+  playerId  String   @id
+  expiresAt DateTime
+  player    Player   @relation(fields: [playerId], references: [id])
+}
+
+model BountyOrder {
+  id          String   @id @default(cuid())
+  placerId    String
+  targetId    String
+  amount      BigInt
+  status      String   @default("OPEN") // OPEN | CLAIMED
+  fundTxHash  String?
+  claimTxHash String?
+  claimedById String?
+  placer      Player   @relation("placer", fields: [placerId], references: [id])
+  target      Player   @relation("target", fields: [targetId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([targetId, status])
+}
+
+model JailEvent {
+  id        String   @id @default(cuid())
+  playerId  String
+  reason    String // CRIME_FAILED | BREAKOUT_FAILED
+  until     DateTime
+  freedBy   String? // BRIBE | BREAKOUT | SERVED
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model IdentityChange {
+  id          String   @id @default(cuid())
+  playerId    String
+  oldUsername String
+  newUsername String
+  xpKept      BigInt
+  cost        BigInt
+  player      Player   @relation(fields: [playerId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Rank {
+  id      Int      @id
+  key     String   @unique
+  minXp   BigInt
+  players Player[]
+}
+
+model Crime {
+  id          Int            @id
+  key         String         @unique
+  minRankId   Int
+  cooldownSec Int
+  baseSuccess Int // percentage 1-100 before heat/rank modifiers
+  minPayout   Int
+  maxPayout   Int
+  xpReward    Int
+  heatGain    Int
+  attempts    CrimeAttempt[]
+}
+
+model CrimeAttempt {
+  id        String   @id @default(cuid())
+  playerId  String
+  crimeId   Int
+  success   Boolean
+  payout    BigInt
+  xpGained  Int
+  player    Player   @relation(fields: [playerId], references: [id])
+  crime     Crime    @relation(fields: [crimeId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([playerId, createdAt(sort: Desc)])
+}
+
+model Cooldown {
+  playerId  String
+  key       String
+  expiresAt DateTime
+  player    Player   @relation(fields: [playerId], references: [id])
+
+  @@id([playerId, key])
+}
+
+model ChainTx {
+  id        String   @id @default(cuid())
+  playerId  String
+  kind      String // WITHDRAW | DEPOSIT | LAUNDER
+  amount    BigInt
+  txHash    String?  @unique
+  status    String   @default("PENDING") // PENDING | CONFIRMED | FAILED
+  player    Player   @relation(fields: [playerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([playerId, createdAt(sort: Desc)])
+}

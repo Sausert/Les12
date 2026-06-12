@@ -1,0 +1,38 @@
+# Production self-hosting: PostgreSQL + the web app (see DEPLOYMENT.md step 5B).
+# Put a TLS-terminating reverse proxy (Caddy/Traefik/nginx) in front of port 3000.
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: omerta
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: omerta
+    volumes:
+      - omerta_pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omerta"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://omerta:${POSTGRES_PASSWORD}@postgres:5432/omerta
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET}
+      WALLET_ENC_KEY: ${WALLET_ENC_KEY:?set WALLET_ENC_KEY}
+      ADMIN_SECRET: ${ADMIN_SECRET:?set ADMIN_SECRET}
+      CHAIN_ENABLED: ${CHAIN_ENABLED:-true}
+      CHAIN_RPC_URL: ${CHAIN_RPC_URL:-https://rpc.blaze.soniclabs.com}
+      CHAIN_ID: ${CHAIN_ID:-57054}
+      TREASURY_PRIVATE_KEY: ${TREASURY_PRIVATE_KEY:?set TREASURY_PRIVATE_KEY}
+    ports:
+      - "3000:3000"
+
+volumes:
+  omerta_pgdata_prod:

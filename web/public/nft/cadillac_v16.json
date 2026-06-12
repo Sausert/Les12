@@ -1,0 +1,11 @@
+{
+  "name": "Cadillac V-16",
+  "description": "Half the travel time, twice the style.",
+  "image": "/icon.svg",
+  "attributes": [
+    {
+      "trait_type": "category",
+      "value": "CAR"
+    }
+  ]
+}

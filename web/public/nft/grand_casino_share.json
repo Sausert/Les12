@@ -1,0 +1,11 @@
+{
+  "name": "Grand Casino Share",
+  "description": "A slice of the house edge. 150 OMD per day.",
+  "image": "/icon.svg",
+  "attributes": [
+    {
+      "trait_type": "category",
+      "value": "PROPERTY"
+    }
+  ]
+}

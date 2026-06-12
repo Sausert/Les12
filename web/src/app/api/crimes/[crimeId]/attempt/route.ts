@@ -1,0 +1,129 @@
+import { NextResponse } from "next/server";
+import { randomInt } from "node:crypto";
+import { Prisma } from "@prisma/client";
+import { db } from "@/lib/db";
+import { json, apiError, requirePlayer, requireAlive, requireFree, rateLimit } from "@/lib/api";
+import { applyHeat, resolveCrime } from "@/lib/game/crimes";
+import { rankForXp } from "@/lib/game/ranks";
+import { jailChance, jailDurationSec } from "@/lib/game/pvp";
+import { districtTax } from "@/lib/game/family";
+
+export async function POST(_request: Request, context: { params: Promise<{ crimeId: string }> }) {
+  const player = await requirePlayer();
+  if (player instanceof NextResponse) return player;
+  if (!rateLimit(player.id)) return apiError(429, "rate_limited");
+  const blocked = requireAlive(player) ?? requireFree(player);
+  if (blocked) return blocked;
+
+  const { crimeId: crimeIdRaw } = await context.params;
+  const crimeId = Number.parseInt(crimeIdRaw, 10);
+  if (!Number.isInteger(crimeId)) return apiError(400, "invalid_input");
+
+  const crime = await db.crime.findUnique({ where: { id: crimeId } });
+  if (!crime) return apiError(404, "crime_not_found");
+  if (player.rankId < crime.minRankId) return apiError(403, "rank_too_low");
+
+  // All randomness is rolled server-side; the client only sends intent.
+  const roll = randomInt(0, 100);
+  const payoutRoll = randomInt(0, 1_000_000) / 1_000_000;
+  const jailRoll = randomInt(0, 100);
+
+  try {
+    const result = await db.$transaction(async (tx) => {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + crime.cooldownSec * 1000);
+      const cooldownKey = `crime:${crime.id}`;
+
+      // Atomic cooldown claim: update only wins if the old cooldown expired;
+      // create only wins if no row exists (PK conflict otherwise).
+      const claimed = await tx.cooldown.updateMany({
+        where: { playerId: player.id, key: cooldownKey, expiresAt: { lte: now } },
+        data: { expiresAt },
+      });
+      if (claimed.count === 0) {
+        try {
+          await tx.cooldown.create({
+            data: { playerId: player.id, key: cooldownKey, expiresAt },
+          });
+        } catch {
+          throw new CooldownActiveError();
+        }
+      }
+
+      const outcome = resolveCrime(crime, player.heat, roll, payoutRoll);
+
+      // Protection money: crimes in an owned district pay tax to the family
+      // that runs it — unless you're one of theirs.
+      let netPayout = outcome.payout;
+      let protectionTax = 0n;
+      if (outcome.payout > 0n) {
+        const district = await tx.district.findUnique({ where: { id: player.districtId } });
+        if (district?.ownerFamilyId) {
+          const myFamily = await tx.familyMember.findUnique({ where: { playerId: player.id } });
+          if (myFamily?.familyId !== district.ownerFamilyId) {
+            const taxed = districtTax(outcome.payout, district.taxPct);
+            netPayout = taxed.net;
+            protectionTax = taxed.tax;
+            await tx.family.update({
+              where: { id: district.ownerFamilyId },
+              data: { treasury: { increment: taxed.tax } },
+            });
+          }
+        }
+      }
+
+      const ranks = await tx.rank.findMany({ orderBy: { id: "asc" } });
+      const newXp = player.xp + BigInt(outcome.xpGained);
+      const newRank = rankForXp(ranks, newXp);
+      const newHeat = applyHeat(player.heat, outcome.heatGained);
+
+      // A failed crime with the cops on your tail can land you in a cell.
+      let jailedUntil: Date | null = null;
+      if (!outcome.success && jailRoll < jailChance(newHeat)) {
+        jailedUntil = new Date(now.getTime() + jailDurationSec(crime.heatGain) * 1000);
+        await tx.jailEvent.create({
+          data: { playerId: player.id, reason: "CRIME_FAILED", until: jailedUntil },
+        });
+      }
+
+      await tx.player.update({
+        where: { id: player.id },
+        data: {
+          xp: newXp,
+          dirtyCash: { increment: netPayout },
+          heat: newHeat,
+          rankId: newRank.id,
+          ...(jailedUntil ? { jailedUntil } : {}),
+        },
+      });
+      await tx.crimeAttempt.create({
+        data: {
+          playerId: player.id,
+          crimeId: crime.id,
+          success: outcome.success,
+          payout: netPayout,
+          xpGained: outcome.xpGained,
+        },
+      });
+
+      return {
+        success: outcome.success,
+        payout: netPayout,
+        protectionTax,
+        xpGained: outcome.xpGained,
+        heat: newHeat,
+        cooldownUntil: expiresAt.toISOString(),
+        jailedUntil: jailedUntil?.toISOString() ?? null,
+        rankUp: newRank.id > player.rankId ? { id: newRank.id, key: newRank.key } : null,
+      };
+    });
+
+    return json(result);
+  } catch (err) {
+    if (err instanceof CooldownActiveError) return apiError(409, "cooldown_active");
+    if (err instanceof Prisma.PrismaClientKnownRequestError) return apiError(409, "conflict");
+    throw err;
+  }
+}
+
+class CooldownActiveError extends Error {}

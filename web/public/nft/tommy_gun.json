@@ -1,0 +1,11 @@
+{
+  "name": "Tommy Gun",
+  "description": "The Chicago typewriter. Twenty percent fewer bullets needed.",
+  "image": "/icon.svg",
+  "attributes": [
+    {
+      "trait_type": "category",
+      "value": "WEAPON"
+    }
+  ]
+}
