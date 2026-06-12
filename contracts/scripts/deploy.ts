@@ -19,6 +19,7 @@ const sonicBlazeChain = defineChain({
  */
 async function main() {
   const chainOverride = hre.network.config.chainId === 14601 ? { chain: sonicBlazeChain } : {};
+  const clientConfig = Object.keys(chainOverride).length ? { clientConfig: chainOverride } : {};
   const [deployer] = await hre.viem.getWalletClients(chainOverride);
   if (!deployer) {
     throw new Error(
@@ -30,40 +31,40 @@ async function main() {
   const token = await hre.viem.deployContract("OmertaToken", [
     deployer.account.address,
     deployer.account.address,
-  ]);
+  ], clientConfig);
   console.log(`OmertaToken: ${token.address}`);
 
-  const bank = await hre.viem.deployContract("Bank", [token.address]);
+  const bank = await hre.viem.deployContract("Bank", [token.address], clientConfig);
   console.log(`Bank: ${bank.address}`);
 
   const bounty = await hre.viem.deployContract("Bounty", [
     token.address,
     deployer.account.address,
-  ]);
+  ], clientConfig);
   console.log(`Bounty: ${bounty.address}`);
 
   const items = await hre.viem.deployContract("OmertaItems", [
     deployer.account.address,
     deployer.account.address,
-  ]);
+  ], clientConfig);
   console.log(`OmertaItems: ${items.address}`);
 
   const auctionHouse = await hre.viem.deployContract("AuctionHouse", [
     token.address,
     items.address,
-  ]);
+  ], clientConfig);
   console.log(`AuctionHouse: ${auctionHouse.address}`);
 
   const testament = await hre.viem.deployContract("Testament", [
     token.address,
     deployer.account.address,
-  ]);
+  ], clientConfig);
   console.log(`Testament: ${testament.address}`);
 
   const trophy = await hre.viem.deployContract("SeasonTrophy", [
     deployer.account.address,
     deployer.account.address,
-  ]);
+  ], clientConfig);
   console.log(`SeasonTrophy: ${trophy.address}`);
 
   const outPath = join(__dirname, "..", "..", "web", "src", "lib", "chain", "deployments.json");
