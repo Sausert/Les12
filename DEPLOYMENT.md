@@ -157,8 +157,8 @@ opstarten en serveert op poort 3000. Zet er een reverse proxy met TLS voor
 | `WALLET_ENC_KEY` | uit stap 1 | exact 32 bytes hex (64 hex-tekens) |
 | `ADMIN_SECRET` | uit stap 1 | |
 | `CHAIN_ENABLED` | `true` | `false` = spel zonder chain (bank/veiling uit) |
-| `CHAIN_RPC_URL` | `https://rpc.blaze.soniclabs.com` | |
-| `CHAIN_ID` | `57054` | Sonic Blaze |
+| `CHAIN_RPC_URL` | `https://rpc.testnet.soniclabs.com` | |
+| `CHAIN_ID` | `14601` | Sonic Blaze |
 | `TREASURY_PRIVATE_KEY` | uit stap 1 | dezelfde key als de deploy! |
 
 > **Belangrijk:** de chain-adressen komen uit het ge-committe `deployments.json` en

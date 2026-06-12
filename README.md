@@ -171,8 +171,8 @@ Herstart de app (bij `npm start` ook eerst opnieuw `npm run build`).
    cd contracts
    TREASURY_PRIVATE_KEY=0x... npx hardhat run scripts/deploy.ts --network sonicBlaze
    ```
-3. In `web/.env`: `CHAIN_ENABLED="true"`, `CHAIN_RPC_URL="https://rpc.blaze.soniclabs.com"`,
-   `CHAIN_ID="57054"` en dezelfde `TREASURY_PRIVATE_KEY`
+3. In `web/.env`: `CHAIN_ENABLED="true"`, `CHAIN_RPC_URL="https://rpc.testnet.soniclabs.com"`,
+   `CHAIN_ID="14601"` en dezelfde `TREASURY_PRIVATE_KEY`
 4. Withdraw-transacties zijn nu zichtbaar op [testnet.sonicscan.org](https://testnet.sonicscan.org)
 
 ## Testen
