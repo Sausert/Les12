@@ -1,6 +1,16 @@
 import hre from "hardhat";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { defineChain } from "viem";
+
+const sonicBlazeChain = defineChain({
+  id: 14601,
+  name: "Sonic Blaze Testnet",
+  nativeCurrency: { name: "Sonic", symbol: "S", decimals: 18 },
+  rpcUrls: {
+    default: { http: [process.env.SONIC_BLAZE_RPC ?? "https://rpc.testnet.soniclabs.com"] },
+  },
+});
 
 /**
  * Deploys OmertaToken + Bank. The deployer account (TREASURY_PRIVATE_KEY on
@@ -8,7 +18,8 @@ import { dirname, join } from "node:path";
  * web/src/lib/chain/deployments.json for the game server to pick up.
  */
 async function main() {
-  const [deployer] = await hre.viem.getWalletClients();
+  const chainOverride = hre.network.config.chainId === 14601 ? { chain: sonicBlazeChain } : {};
+  const [deployer] = await hre.viem.getWalletClients(chainOverride);
   if (!deployer) {
     throw new Error(
       "No deployer account. Set TREASURY_PRIVATE_KEY when deploying to sonicBlaze.",
