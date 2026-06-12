@@ -1,6 +1,16 @@
 import { HardhatUserConfig, subtask } from "hardhat/config";
 import { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } from "hardhat/builtin-tasks/task-names";
 import "@nomicfoundation/hardhat-toolbox-viem";
+import { defineChain } from "viem";
+
+const sonicBlazeChain = defineChain({
+  id: 14601,
+  name: "Sonic Blaze Testnet",
+  nativeCurrency: { name: "Sonic", symbol: "S", decimals: 18 },
+  rpcUrls: {
+    default: { http: [process.env.SONIC_BLAZE_RPC ?? "https://rpc.blaze.soniclabs.com"] },
+  },
+});
 
 const TREASURY_PRIVATE_KEY = process.env.TREASURY_PRIVATE_KEY;
 
@@ -33,6 +43,8 @@ const config: HardhatUserConfig = {
       accounts: TREASURY_PRIVATE_KEY ? [TREASURY_PRIVATE_KEY] : [],
     },
   },
+  // @ts-ignore — hardhat-viem custom chain extension
+  chains: [sonicBlazeChain],
 };
 
 export default config;
