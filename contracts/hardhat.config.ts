@@ -8,7 +8,7 @@ const sonicBlazeChain = defineChain({
   name: "Sonic Blaze Testnet",
   nativeCurrency: { name: "Sonic", symbol: "S", decimals: 18 },
   rpcUrls: {
-    default: { http: [process.env.SONIC_BLAZE_RPC ?? "https://rpc.blaze.soniclabs.com"] },
+    default: { http: [process.env.SONIC_BLAZE_RPC ?? "https://rpc.testnet.soniclabs.com"] },
   },
 });
 
@@ -38,7 +38,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     sonicBlaze: {
-      url: process.env.SONIC_BLAZE_RPC ?? "https://rpc.blaze.soniclabs.com",
+      url: process.env.SONIC_BLAZE_RPC ?? "https://rpc.testnet.soniclabs.com",
       chainId: 14601,
       accounts: TREASURY_PRIVATE_KEY ? [TREASURY_PRIVATE_KEY] : [],
     },
