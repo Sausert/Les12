@@ -18,6 +18,8 @@ export interface MeState {
   protectedUntil: string | null;
   bountyOnMe: number;
   walletAddress: string | null;
+  payoutAddress: string | null;
+  season: { id: number } | null;
   family: { name: string; role: string } | null;
   district: { id: number; key: string } | null;
   rank: { id: number; key: string };

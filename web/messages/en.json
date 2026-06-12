@@ -304,7 +304,10 @@
     "byXp": "By experience",
     "byCash": "By wealth",
     "position": "#",
-    "player": "Player"
+    "player": "Player",
+    "season": "Season {id} is running — at its end the top 3 are immortalized as soulbound NFT trophies and every reputation resets.",
+    "fameTitle": "Hall of Fame",
+    "fameSeason": "season {id}"
   },
   "bank": {
     "title": "The Bank",
@@ -343,8 +346,10 @@
       "insufficient_onchain_balance": "Not enough OMD in your wallet.",
       "chain_disabled": "Blockchain link is disabled.",
       "chain_error": "The blockchain transaction failed. Your balance was restored.",
-      "invalid_input": "Enter a valid amount."
-    }
+      "invalid_input": "Enter a valid amount.",
+      "no_linked_wallet": "No external wallet linked (see your profile)."
+    },
+    "withdrawExternal": "To linked external wallet ({address})"
   },
   "profile": {
     "title": "Profile",
@@ -355,7 +360,8 @@
     "heatDesc": "The higher your heat, the more jobs fail. Laundering cools you down.",
     "walletTitle": "Sonic wallet",
     "statsTitle": "Statistics",
-    "language": "Language"
+    "language": "Language",
+    "season": "Season {id}"
   },
   "casino": {
     "title": "The Casino",
@@ -500,6 +506,21 @@
       "chain_error": "Blockchain transaction failed; your money was restored.",
       "dead": "Dead men don't bid.",
       "jailed": "No bidding from a cell."
+    }
+  },
+  "walletLink": {
+    "title": "Link external wallet",
+    "desc": "Link your own wallet (e.g. MetaMask or Rabby) by proving ownership with a signature. Withdrawals can then go straight to this address.",
+    "challengeButton": "Get message",
+    "signInstruction": "Sign this message in your wallet (personal_sign) and paste the signature below:",
+    "signaturePlaceholder": "0x… signature",
+    "linkButton": "Link",
+    "linkedDesc": "Verified by signature. Tick 'to external wallet' at the bank to withdraw here.",
+    "unlink": "Unlink",
+    "errors": {
+      "invalid_address": "That's not a valid address.",
+      "invalid_signature": "The signature doesn't match this address.",
+      "dead": "Dead men link nothing."
     }
   }
 }

@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useGame } from "./GameProvider";
 
+interface FameRow {
+  seasonId: number;
+  position: number;
+  username: string;
+  xp: number;
+  trophyTokenId: number | null;
+}
+
 interface Row {
   position: number;
   username: string;
@@ -17,6 +25,18 @@ export function Leaderboard() {
   const { me } = useGame();
   const [by, setBy] = useState<"xp" | "cash">("xp");
   const [rows, setRows] = useState<Row[] | null>(null);
+  const [fame, setFame] = useState<FameRow[]>([]);
+  const [seasonId, setSeasonId] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/season").then(async (res) => {
+      if (res.ok) {
+        const data = await res.json();
+        setFame(data.hallOfFame);
+        setSeasonId(data.season?.id ?? null);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     fetch(`/api/leaderboard?by=${by}`)
@@ -66,6 +86,37 @@ export function Leaderboard() {
           </div>
         ))}
       </div>
+
+      {seasonId !== null && (
+        <p className="mt-3 text-xs text-ivory-dim">{t("leaderboard.season", { id: seasonId })}</p>
+      )}
+      {fame.length > 0 && (
+        <>
+          <h3 className="mt-4 font-display text-base text-ivory">{t("leaderboard.fameTitle")}</h3>
+          <div className="dossier mt-2 divide-y divide-gold/10">
+            {fame.map((row) => (
+              <div
+                key={`${row.seasonId}_${row.position}`}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm"
+              >
+                <span className="font-display text-gold">
+                  {["🥇", "🥈", "🥉"][row.position - 1] ?? row.position}
+                </span>
+                <span className="flex-1">
+                  {row.username}
+                  <span className="ml-2 text-xs text-ivory-dim">
+                    {t("leaderboard.fameSeason", { id: row.seasonId })}
+                  </span>
+                </span>
+                <span className="text-xs text-ivory-dim tabular-nums">
+                  {row.xp.toLocaleString()} {t("common.xp")}
+                  {row.trophyTokenId !== null && ` · NFT #${row.trophyTokenId}`}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

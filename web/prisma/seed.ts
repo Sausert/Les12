@@ -108,6 +108,13 @@ async function main() {
     });
   }
 
+  // Season 1 opens with the city.
+  const activeSeason = await prisma.season.findFirst({ where: { status: "ACTIVE" } });
+  if (!activeSeason) {
+    const last = await prisma.season.findFirst({ orderBy: { id: "desc" } });
+    await prisma.season.create({ data: { id: (last?.id ?? 0) + 1 } });
+  }
+
   const passwordHash = await bcrypt.hash("hush-hush-1930", 10);
   for (const username of ["DonTesto", "LuckyLuciana"]) {
     await prisma.player.upsert({

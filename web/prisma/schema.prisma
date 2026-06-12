@@ -47,9 +47,33 @@ model Player {
   items         Item[]
   auctionsSold  Auction[]      @relation("auctionSeller")
   auctionsBid   Auction[]      @relation("auctionBidder")
+  payoutAddress String? // linked external wallet (signature-verified)
+  seasonResults SeasonResult[]
   createdAt     DateTime       @default(now())
 
   @@index([xp(sort: Desc)])
+}
+
+model Season {
+  id        Int            @id
+  status    String         @default("ACTIVE") // ACTIVE | ENDED
+  startedAt DateTime       @default(now())
+  endedAt   DateTime?
+  results   SeasonResult[]
+}
+
+model SeasonResult {
+  seasonId     Int
+  playerId     String
+  position     Int
+  xp           BigInt
+  username     String // frozen at season end (identities change)
+  trophyTokenId BigInt?
+  trophyTxHash String?
+  season       Season  @relation(fields: [seasonId], references: [id])
+  player       Player  @relation(fields: [playerId], references: [id])
+
+  @@id([seasonId, position])
 }
 
 model ItemType {

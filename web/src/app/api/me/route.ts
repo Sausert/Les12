@@ -9,7 +9,7 @@ export async function GET() {
   if (player instanceof NextResponse) return player;
 
   const now = new Date();
-  const [rank, ranks, cooldowns, protection, bountyOnMe, membership, district] = await Promise.all([
+  const [rank, ranks, cooldowns, protection, bountyOnMe, membership, district, season] = await Promise.all([
     db.rank.findUniqueOrThrow({ where: { id: player.rankId } }),
     db.rank.findMany({ orderBy: { id: "asc" } }),
     db.cooldown.findMany({
@@ -25,6 +25,7 @@ export async function GET() {
       include: { family: { select: { name: true } } },
     }),
     db.district.findUnique({ where: { id: player.districtId } }),
+    db.season.findFirst({ where: { status: "ACTIVE" }, orderBy: { id: "desc" } }),
   ]);
 
   const jailed = player.jailedUntil && player.jailedUntil > now ? player.jailedUntil : null;
@@ -47,6 +48,8 @@ export async function GET() {
       protection && protection.expiresAt > now ? protection.expiresAt.toISOString() : null,
     bountyOnMe: bountyOnMe._sum.amount ?? 0n,
     walletAddress: player.walletAddress,
+    payoutAddress: player.payoutAddress,
+    season: season ? { id: season.id } : null,
     family: membership
       ? { name: membership.family.name, role: membership.role }
       : null,

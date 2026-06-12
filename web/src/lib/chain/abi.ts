@@ -174,6 +174,30 @@ export const testamentAbi = [
   },
 ] as const;
 
+export const seasonTrophyAbi = [
+  {
+    type: "function",
+    name: "mintTrophy",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "season", type: "uint32" },
+      { name: "position", type: "uint8" },
+    ],
+    outputs: [{ name: "tokenId", type: "uint256" }],
+  },
+  {
+    type: "event",
+    name: "TrophyMinted",
+    inputs: [
+      { name: "to", type: "address", indexed: true },
+      { name: "tokenId", type: "uint256", indexed: true },
+      { name: "season", type: "uint32", indexed: false },
+      { name: "position", type: "uint8", indexed: false },
+    ],
+  },
+] as const;
+
 export const bankAbi = [
   {
     type: "function",

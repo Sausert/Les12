@@ -6,7 +6,10 @@ import { json, apiError, requirePlayer, requireAlive, rateLimit } from "@/lib/ap
 import { chainEnabled, explorerTxUrl } from "@/lib/chain/client";
 import { mintTo } from "@/lib/chain/token";
 
-const bodySchema = z.object({ amount: z.number().int().positive().max(1_000_000) });
+const bodySchema = z.object({
+  amount: z.number().int().positive().max(1_000_000),
+  external: z.boolean().optional(),
+});
 
 export async function POST(request: Request) {
   const player = await requirePlayer();
@@ -20,6 +23,10 @@ export async function POST(request: Request) {
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return apiError(400, "invalid_input");
   const amount = BigInt(parsed.data.amount);
+
+  // External withdrawals pay out to the signature-verified linked wallet.
+  const destination = parsed.data.external ? player.payoutAddress : player.walletAddress;
+  if (parsed.data.external && !destination) return apiError(400, "no_linked_wallet");
 
   // Debit off-chain first, atomically, before anything touches the chain.
   const chainTx = await db.$transaction(async (tx) => {
@@ -35,7 +42,7 @@ export async function POST(request: Request) {
   if (!chainTx) return apiError(400, "insufficient_cash");
 
   try {
-    const txHash = await mintTo(player.walletAddress as Address, amount);
+    const txHash = await mintTo(destination as Address, amount);
     await db.chainTx.update({
       where: { id: chainTx.id },
       data: { txHash, status: "CONFIRMED" },

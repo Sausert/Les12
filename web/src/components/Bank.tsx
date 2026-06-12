@@ -70,6 +70,7 @@ export function Bank() {
   const [txs, setTxs] = useState<Tx[] | null>(null);
   const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [chainDisabled, setChainDisabled] = useState(false);
+  const [external, setExternal] = useState(false);
 
   const loadTxs = useCallback(
     () =>
@@ -88,11 +89,15 @@ export function Bank() {
     setNotice({ kind: "error", text: t.has(key) ? t(key) : t("common.error") });
   }
 
-  async function call(path: string, amount: number): Promise<Record<string, unknown> | null> {
+  async function call(
+    path: string,
+    amount: number,
+    extra?: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
     const res = await fetch(path, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ amount, ...extra }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -164,12 +169,25 @@ export function Bank() {
       <section className="dossier p-4">
         <h3 className="font-display text-base">{t("bank.withdrawTitle")}</h3>
         <p className="mt-1 text-sm text-ivory-dim">{t("bank.withdrawDesc")}</p>
+        {me?.payoutAddress && (
+          <label className="mt-2 flex items-center gap-2 text-xs text-ivory-dim">
+            <input
+              type="checkbox"
+              checked={external}
+              onChange={(event) => setExternal(event.target.checked)}
+              className="accent-[#c9a227]"
+            />
+            {t("bank.withdrawExternal", {
+              address: `${me.payoutAddress.slice(0, 6)}…${me.payoutAddress.slice(-4)}`,
+            })}
+          </label>
+        )}
         <AmountForm
           label={t("bank.amount")}
           buttonLabel={t("bank.withdrawButton")}
           disabled={chainDisabled}
           onSubmit={async (amount) => {
-            const data = await call("/api/bank/withdraw", amount);
+            const data = await call("/api/bank/withdraw", amount, external ? { external: true } : undefined);
             if (data) setNotice({ kind: "ok", text: t("bank.txSuccess") });
           }}
         />

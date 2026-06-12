@@ -5,6 +5,7 @@ import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { LogOut, Trophy, Landmark } from "lucide-react";
 import { useGame } from "./GameProvider";
 import { Items } from "./Items";
+import { WalletLink } from "./WalletLink";
 
 export function Profile() {
   const t = useTranslations();
@@ -25,6 +26,11 @@ export function Profile() {
       <div className="dossier p-5 text-center">
         <h2 className="font-display text-2xl text-ivory">{me.username}</h2>
         <p className="mt-1 font-display text-gold">{t(`ranks.${me.rank.key}`)}</p>
+        {me.season && (
+          <p className="mt-0.5 text-xs text-ivory-dim">
+            {t("profile.season", { id: me.season.id })}
+          </p>
+        )}
         <p className="mt-2 text-sm text-ivory-dim tabular-nums">
           {t("common.xp")}: {me.xp.toLocaleString()}
         </p>
@@ -78,6 +84,8 @@ export function Profile() {
           ))}
         </div>
       </div>
+
+      <WalletLink />
 
       <Items />
 

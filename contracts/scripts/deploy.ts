@@ -49,6 +49,12 @@ async function main() {
   ]);
   console.log(`Testament: ${testament.address}`);
 
+  const trophy = await hre.viem.deployContract("SeasonTrophy", [
+    deployer.account.address,
+    deployer.account.address,
+  ]);
+  console.log(`SeasonTrophy: ${trophy.address}`);
+
   const outPath = join(__dirname, "..", "..", "web", "src", "lib", "chain", "deployments.json");
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(
@@ -63,6 +69,7 @@ async function main() {
         omertaItems: items.address,
         auctionHouse: auctionHouse.address,
         testament: testament.address,
+        seasonTrophy: trophy.address,
         deployedAt: new Date().toISOString(),
       },
       null,

@@ -334,6 +334,9 @@ echo "$NOSELL" | grep -q 'insufficient_goods' || fail "expected insufficient_goo
 if $PSQL "SELECT 1" > /dev/null 2>&1; then
   echo
   sleep 10 # let the per-player rate-limit window reset
+  # A restarted local chain wipes on-chain NFTs; clear stale registry mirrors.
+  $PSQL "UPDATE \"Item\" SET \"tokenId\"=NULL, \"escrowed\"=false WHERE \"tokenId\" IS NOT NULL"
+  $PSQL "UPDATE \"Auction\" SET status='SETTLED', \"onchainId\"=NULL"
   echo "== boss buys a revolver (minted as NFT) and a speakeasy"
   REV=$(api3 POST /api/items/buy '{"typeKey":"revolver"}')
   echo "$REV" | grep -q '"key":"revolver"' || fail "buy revolver: $REV"
@@ -392,6 +395,65 @@ if $PSQL "SELECT 1" > /dev/null 2>&1; then
   if echo "$VWITHDRAW" | grep -q 'CONFIRMED'; then
     echo "$LEGACY" | grep -q '"testamentTxHash":"0x' || fail "expected on-chain testament tx: $LEGACY"
   fi
+fi
+
+# ---------- Phase 6: external wallet link, external withdraw & seasons ----------
+
+if $PSQL "SELECT 1" > /dev/null 2>&1; then
+  echo
+  sleep 10 # rate-limit window reset
+  echo "== link an external wallet by signature"
+  EXT=$(node -e "
+const { generatePrivateKey, privateKeyToAccount } = require('viem/accounts');
+const key = generatePrivateKey();
+const account = privateKeyToAccount(key);
+console.log(key + ' ' + account.address);
+")
+  EXTKEY=$(echo "$EXT" | cut -d' ' -f1)
+  EXTADDR=$(echo "$EXT" | cut -d' ' -f2)
+  CHALLENGE=$(api3 GET "/api/wallet/link?address=$EXTADDR" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p')
+  [ -n "$CHALLENGE" ] || fail "no challenge message"
+  SIG=$(node -e "
+const { privateKeyToAccount } = require('viem/accounts');
+privateKeyToAccount('$EXTKEY').signMessage({ message: '$CHALLENGE' }).then(console.log);
+")
+  echo "== a forged signature is rejected"
+  BADLINK=$(api3 POST /api/wallet/link "{\"address\":\"$EXTADDR\",\"signature\":\"0xdeadbeef\"}")
+  echo "$BADLINK" | grep -q 'invalid_signature' || fail "expected invalid_signature: $BADLINK"
+  LINK=$(api3 POST /api/wallet/link "{\"address\":\"$EXTADDR\",\"signature\":\"$SIG\"}")
+  echo "$LINK" | grep -q "\"payoutAddress\":\"$EXTADDR\"" || fail "link: $LINK"
+  echo "   linked $EXTADDR"
+
+  if [ "$CHAIN_TEST" = "true" ]; then
+    echo "== withdraw 25 OMD straight to the external wallet"
+    $PSQL "UPDATE \"Player\" SET cash=cash+100 WHERE username='$BOSS'"
+    EXTW=$(api3 POST /api/bank/withdraw '{"amount":25,"external":true}')
+    echo "$EXTW" | grep -q '"status":"CONFIRMED"' || fail "external withdraw: $EXTW"
+    EXTBAL=$(node -e "
+const { createPublicClient, http } = require('viem');
+const c = createPublicClient({ transport: http('http://127.0.0.1:8545') });
+const abi = [{ type:'function', name:'balanceOf', stateMutability:'view', inputs:[{name:'a',type:'address'}], outputs:[{type:'uint256'}] }];
+c.readContract({ address:'0x5fbdb2315678afecb367f032d93f642f64180aa3', abi, functionName:'balanceOf', args:['$EXTADDR'] })
+  .then(b => console.log((b/10n**18n).toString()));
+")
+    [ "$EXTBAL" = "25" ] || fail "external wallet should hold 25 OMD, got $EXTBAL"
+    echo "   external wallet holds $EXTBAL OMD"
+  fi
+
+  echo "== season rollover requires the admin secret"
+  NOAUTH=$(curl -s -X POST "$BASE_URL/api/season/end")
+  echo "$NOAUTH" | grep -q 'unauthorized' || fail "expected unauthorized: $NOAUTH"
+
+  echo "== end the season: trophies, reset, next season"
+  SEASON_END=$(curl -s -X POST -H "x-admin-secret: ${ADMIN_SECRET:-dev-admin-secret-omerta}" "$BASE_URL/api/season/end")
+  echo "$SEASON_END" | grep -q '"endedSeason":' || fail "season end: $SEASON_END"
+  echo "   $SEASON_END"
+  if [ "$CHAIN_TEST" = "true" ]; then
+    echo "$SEASON_END" | grep -q '"trophyTokenId":"[0-9]' || fail "expected minted trophies: $SEASON_END"
+  fi
+  api3 GET /api/me | grep -q '"xp":0' || fail "xp should reset after season end"
+  SEASONS=$(api3 GET /api/season)
+  echo "$SEASONS" | grep -q '"hallOfFame":\[{' || fail "hall of fame empty: $SEASONS"
 fi
 
 echo

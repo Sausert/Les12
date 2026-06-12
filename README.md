@@ -94,8 +94,20 @@ Les12/
   naar je erfgenaam, 40% verbrandt; je bezittingen en speelgeld gaan volledig over en het
   account is voorgoed gesloten
 
-Fase 6 (seizoenen met soulbound trofeeën, externe wallets, Capacitor) staat beschreven in
-het projectplan en bouwt additief op dit schema voort.
+### Seizoenen, externe wallets & app stores (fase 6 — dit is gebouwd)
+
+- **Seizoenen met soulbound trofeeën** (`SeasonTrophy`): een admin-endpoint
+  (`POST /api/season/end`, beveiligd met `ADMIN_SECRET`) sluit het seizoen — de top 3
+  wordt vereeuwigd als **niet-overdraagbare** NFT-trofee (transfers reverten on-chain),
+  elke reputatie reset en het volgende seizoen opent; de Hall of Fame staat op de ranglijst
+- **Externe wallet koppelen**: bewijs eigenaarschap van je eigen wallet (MetaMask e.d.)
+  door een challenge-bericht te ondertekenen (personal_sign); de server verifieert de
+  handtekening — daarna kun je bij de bank rechtstreeks **naar je externe adres opnemen**
+- **App stores**: `web/capacitor.config.ts` bevat de Capacitor-wrap voor Android/iOS
+  (de hele game draait achter HTTP-API's, dus de native shell laadt simpelweg de PWA);
+  let op de strenge store-policies rond crypto/gokken
+
+Daarmee zijn alle zes fasen van het projectplan gebouwd. 🎉
 
 ## Snel starten (lokaal)
 

@@ -304,7 +304,10 @@
     "byXp": "Op ervaring",
     "byCash": "Op vermogen",
     "position": "#",
-    "player": "Speler"
+    "player": "Speler",
+    "season": "Seizoen {id} loopt — aan het einde worden de top 3 vereeuwigd als soulbound NFT-trofee en reset elke reputatie.",
+    "fameTitle": "Hall of Fame",
+    "fameSeason": "seizoen {id}"
   },
   "bank": {
     "title": "De Bank",
@@ -343,8 +346,10 @@
       "insufficient_onchain_balance": "Niet genoeg OMD in je wallet.",
       "chain_disabled": "Blockchain-koppeling staat uit.",
       "chain_error": "De blockchain-transactie is mislukt. Je saldo is teruggezet.",
-      "invalid_input": "Voer een geldig bedrag in."
-    }
+      "invalid_input": "Voer een geldig bedrag in.",
+      "no_linked_wallet": "Geen externe wallet gekoppeld (zie je profiel)."
+    },
+    "withdrawExternal": "Naar gekoppelde externe wallet ({address})"
   },
   "profile": {
     "title": "Profiel",
@@ -355,7 +360,8 @@
     "heatDesc": "Hoe hoger je heat, hoe vaker je klussen mislukken. Witwassen koelt je af.",
     "walletTitle": "Sonic wallet",
     "statsTitle": "Statistieken",
-    "language": "Taal"
+    "language": "Taal",
+    "season": "Seizoen {id}"
   },
   "casino": {
     "title": "Het Casino",
@@ -500,6 +506,21 @@
       "chain_error": "Blockchain-transactie mislukt; je geld is teruggezet.",
       "dead": "Dode mannen bieden niet.",
       "jailed": "Vanuit de cel bied je niet."
+    }
+  },
+  "walletLink": {
+    "title": "Externe wallet koppelen",
+    "desc": "Koppel je eigen wallet (bijv. MetaMask of Rabby) door eigenaarschap te bewijzen met een handtekening. Opnames kunnen daarna rechtstreeks naar dit adres.",
+    "challengeButton": "Vraag bericht op",
+    "signInstruction": "Onderteken dit bericht in je wallet (personal_sign) en plak de handtekening hieronder:",
+    "signaturePlaceholder": "0x… handtekening",
+    "linkButton": "Koppel",
+    "linkedDesc": "Geverifieerd via handtekening. Vink bij de bank 'naar externe wallet' aan om hierheen op te nemen.",
+    "unlink": "Ontkoppel",
+    "errors": {
+      "invalid_address": "Dat is geen geldig adres.",
+      "invalid_signature": "De handtekening klopt niet met dit adres.",
+      "dead": "Dode mannen koppelen niets."
     }
   }
 }
