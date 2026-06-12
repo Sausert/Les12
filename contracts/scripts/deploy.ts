@@ -31,6 +31,24 @@ async function main() {
   ]);
   console.log(`Bounty: ${bounty.address}`);
 
+  const items = await hre.viem.deployContract("OmertaItems", [
+    deployer.account.address,
+    deployer.account.address,
+  ]);
+  console.log(`OmertaItems: ${items.address}`);
+
+  const auctionHouse = await hre.viem.deployContract("AuctionHouse", [
+    token.address,
+    items.address,
+  ]);
+  console.log(`AuctionHouse: ${auctionHouse.address}`);
+
+  const testament = await hre.viem.deployContract("Testament", [
+    token.address,
+    deployer.account.address,
+  ]);
+  console.log(`Testament: ${testament.address}`);
+
   const outPath = join(__dirname, "..", "..", "web", "src", "lib", "chain", "deployments.json");
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(
@@ -42,6 +60,9 @@ async function main() {
         omertaToken: token.address,
         bank: bank.address,
         bounty: bounty.address,
+        omertaItems: items.address,
+        auctionHouse: auctionHouse.address,
+        testament: testament.address,
         deployedAt: new Date().toISOString(),
       },
       null,

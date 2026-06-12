@@ -79,8 +79,23 @@ Les12/
   spelersgedrag; handel in zwart geld, draagcapaciteit stijgt met je rang, 2% marktfee
   wordt verbrand
 
-Fase 5 en 6 (NFT-bezittingen, veilinghuis, testament, seizoenen) staan beschreven in het
-projectplan en bouwen additief op dit schema voort.
+### NFT-bezittingen, veilinghuis & testament (fase 5 — dit is gebouwd)
+
+- **Bezittingen als ERC-721's** (`OmertaItems`): wapens (minder kogels nodig bij een
+  moord), auto's (kortere reistijd) en vastgoed (dagelijkse huur in OMD) — gekocht in de
+  shop en als NFT naar je wallet gemint; alleen je beste wapen/auto telt
+- **Vastgoed-yield**: huur bouwt per volledige dag op en wordt geclaimd als schoon geld
+  (lazy accrual, geen cron)
+- **Het Veilinghuis** (`AuctionHouse`): Engelse veilingen met de NFT én de biedingen
+  on-chain in escrow; overboden spelers krijgen hun OMD direct on-chain terug, de hamer
+  betaalt de verkoper uit het contract
+- **Testament** (`Testament`): kies op je sterfbed "rust in vrede" — de server tekent een
+  EIP-712 death-attest en het contract dwingt de verdeling af: 60% van je on-chain OMD
+  naar je erfgenaam, 40% verbrandt; je bezittingen en speelgeld gaan volledig over en het
+  account is voorgoed gesloten
+
+Fase 6 (seizoenen met soulbound trofeeën, externe wallets, Capacitor) staat beschreven in
+het projectplan en bouwt additief op dit schema voort.
 
 ## Snel starten (lokaal)
 

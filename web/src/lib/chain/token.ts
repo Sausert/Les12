@@ -34,7 +34,7 @@ export async function mintTo(to: Address, omd: bigint): Promise<`0x${string}`> {
 }
 
 /** Custodial wallets hold no native S; the treasury tops up gas when needed. */
-async function ensureGas(address: Address): Promise<void> {
+export async function ensureGasFor(address: Address): Promise<void> {
   const balance = await publicClient.getBalance({ address });
   if (balance >= parseEther("0.005")) return;
   const treasury = treasuryWalletClient();
@@ -47,7 +47,7 @@ export async function depositFor(playerId: string, omd: bigint): Promise<`0x${st
   const { token, bank } = requireAddresses();
   const wallet = await playerWalletClient(playerId);
   if (!wallet.account) throw new Error("Wallet has no account");
-  await ensureGas(wallet.account.address);
+  await ensureGasFor(wallet.account.address);
   const amount = toWei(omd);
 
   const approveHash = await wallet.writeContract({

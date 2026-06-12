@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { LogOut, Trophy, Landmark } from "lucide-react";
 import { useGame } from "./GameProvider";
+import { Items } from "./Items";
 
 export function Profile() {
   const t = useTranslations();
@@ -77,6 +78,8 @@ export function Profile() {
           ))}
         </div>
       </div>
+
+      <Items />
 
       <Link
         href="/bank"

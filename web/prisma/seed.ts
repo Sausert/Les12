@@ -68,6 +68,17 @@ const marketPools: { districtId: number; goodsKey: string; goodsReserve: bigint 
   { districtId: 6, goodsKey: "morphine", goodsReserve: 1000n },
 ];
 
+// Item keys map to i18n messages: items.<key>; metadata in public/nft/<key>.json
+const itemTypes = [
+  { id: 1, key: "revolver", category: "WEAPON", price: 800n, effectPct: 10, yieldPerDay: 0 },
+  { id: 2, key: "tommy_gun", category: "WEAPON", price: 2500n, effectPct: 20, yieldPerDay: 0 },
+  { id: 3, key: "ford_model_a", category: "CAR", price: 600n, effectPct: 25, yieldPerDay: 0 },
+  { id: 4, key: "cadillac_v16", category: "CAR", price: 2000n, effectPct: 50, yieldPerDay: 0 },
+  { id: 5, key: "speakeasy", category: "PROPERTY", price: 1500n, effectPct: 0, yieldPerDay: 25 },
+  { id: 6, key: "docks_warehouse", category: "PROPERTY", price: 3500n, effectPct: 0, yieldPerDay: 60 },
+  { id: 7, key: "grand_casino_share", category: "PROPERTY", price: 8000n, effectPct: 0, yieldPerDay: 150 },
+];
+
 async function main() {
   for (const rank of ranks) {
     await prisma.rank.upsert({ where: { id: rank.id }, update: rank, create: rank });
@@ -80,6 +91,13 @@ async function main() {
       where: { id: district.id },
       update: { key: district.key, taxPct: district.taxPct },
       create: district,
+    });
+  }
+  for (const itemType of itemTypes) {
+    await prisma.itemType.upsert({
+      where: { id: itemType.id },
+      update: itemType,
+      create: itemType,
     });
   }
   for (const pool of marketPools) {

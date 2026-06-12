@@ -22,11 +22,17 @@ const addresses = deployments as {
   omertaToken: string | null;
   bank: string | null;
   bounty?: string | null;
+  omertaItems?: string | null;
+  auctionHouse?: string | null;
+  testament?: string | null;
 };
 
 export const tokenAddress = (addresses.omertaToken ?? null) as Address | null;
 export const bankAddress = (addresses.bank ?? null) as Address | null;
 export const bountyAddress = (addresses.bounty ?? null) as Address | null;
+export const itemsAddress = (addresses.omertaItems ?? null) as Address | null;
+export const auctionHouseAddress = (addresses.auctionHouse ?? null) as Address | null;
+export const testamentAddress = (addresses.testament ?? null) as Address | null;
 
 export const publicClient = createPublicClient({ chain: gameChain, transport: http() });
 

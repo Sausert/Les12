@@ -12,6 +12,7 @@ export interface MeState {
   heat: number;
   bullets: number;
   isDead: boolean;
+  retiredAt: string | null;
   jailedUntil: string | null;
   bribeCost: number | null;
   protectedUntil: string | null;

@@ -329,5 +329,70 @@ echo "== market: selling goods you don't have is rejected"
 NOSELL=$(api3 POST /api/market/trade '{"goodsKey":"morphine","action":"sell","qty":3}')
 echo "$NOSELL" | grep -q 'insufficient_goods' || fail "expected insufficient_goods: $NOSELL"
 
+# ---------- Phase 5: item NFTs, yield, auction house & testament ----------
+
+if $PSQL "SELECT 1" > /dev/null 2>&1; then
+  echo
+  sleep 10 # let the per-player rate-limit window reset
+  echo "== boss buys a revolver (minted as NFT) and a speakeasy"
+  REV=$(api3 POST /api/items/buy '{"typeKey":"revolver"}')
+  echo "$REV" | grep -q '"key":"revolver"' || fail "buy revolver: $REV"
+  echo "   $REV"
+  echo "$REV" | grep -q '"tokenId":null' && echo "   (chain disabled: registry-only)" || true
+  SPEAK=$(api3 POST /api/items/buy '{"typeKey":"speakeasy"}')
+  echo "$SPEAK" | grep -q '"key":"speakeasy"' || fail "buy speakeasy: $SPEAK"
+
+  echo "== weapon effect: tracking now needs fewer bullets (10 -> 9 at rank 1)"
+  $PSQL "DELETE FROM \"Cooldown\" WHERE key='kill_search' AND \"playerId\"=(SELECT id FROM \"Player\" WHERE username='$BOSS')"
+  WSEARCH=$(api3 POST /api/kill/search "{\"username\":\"$VICTIM\"}")
+  echo "$WSEARCH" | grep -q '"bulletsNeeded":9' || fail "expected 9 bullets with revolver: $WSEARCH"
+
+  echo "== property yield: backdate 2 days and collect 50 OMD rent"
+  $PSQL "UPDATE \"Item\" SET \"lastYieldAt\"=now() - interval '2 days' WHERE \"ownerId\"=(SELECT id FROM \"Player\" WHERE username='$BOSS') AND \"itemTypeId\"=5"
+  YIELD=$(api3 POST /api/items/claim-yield)
+  echo "$YIELD" | grep -q '"claimed":50' || fail "yield claim: $YIELD"
+  echo "   $YIELD"
+
+  echo "== auction: boss lists the revolver, killer bids, settle after close"
+  REVID=$(echo "$REV" | sed -n 's/{"id":"\([^"]*\)".*/\1/p')
+  AUC=$(api3 POST /api/auctions/create "{\"itemId\":\"$REVID\",\"startPrice\":100,\"durationMin\":1}")
+  echo "$AUC" | grep -q '"itemKey":"revolver"' || fail "create auction: $AUC"
+  AUCID=$(echo "$AUC" | sed -n 's/{"id":"\([^"]*\)".*/\1/p')
+  $PSQL "UPDATE \"Player\" SET cash=1000 WHERE username='$KILLER'"
+  BID=$(api POST /api/auctions/bid "{\"auctionId\":\"$AUCID\",\"amount\":150}")
+  echo "$BID" | grep -q '"highBid":150' || fail "bid: $BID"
+
+  echo "== own-auction bids and early settles are rejected"
+  api3 POST /api/auctions/bid "{\"auctionId\":\"$AUCID\",\"amount\":200}" | grep -q 'own_auction' || fail "own_auction expected"
+  api POST /api/auctions/settle "{\"auctionId\":\"$AUCID\"}" | grep -q 'auction_not_ended' || fail "auction_not_ended expected"
+
+  # Fast-forward both the registry clock and the chain clock past the close.
+  $PSQL "UPDATE \"Auction\" SET \"endsAt\"=now() - interval '1 second' WHERE id='$AUCID'"
+  if [ "$CHAIN_TEST" = "true" ]; then
+    curl -s -X POST http://127.0.0.1:8545 -H 'Content-Type: application/json' \
+      -d '{"jsonrpc":"2.0","method":"evm_increaseTime","params":[70],"id":1}' > /dev/null
+    curl -s -X POST http://127.0.0.1:8545 -H 'Content-Type: application/json' \
+      -d '{"jsonrpc":"2.0","method":"evm_mine","params":[],"id":1}' > /dev/null
+  fi
+  SETTLE=$(api POST /api/auctions/settle "{\"auctionId\":\"$AUCID\"}")
+  echo "$SETTLE" | grep -q '"settled":true' || fail "settle: $SETTLE"
+  echo "   $SETTLE"
+  api GET /api/items | grep -q '"key":"revolver"' || fail "winner should own the revolver"
+
+  echo "== testament: victim retires for good, killer inherits"
+  $PSQL "UPDATE \"Player\" SET cash=500 WHERE username='$VICTIM'"
+  VWITHDRAW=$(api2 POST /api/bank/withdraw '{"amount":100}')
+  $PSQL "UPDATE \"Player\" SET \"isDead\"=true, \"diedAt\"=now() WHERE username='$VICTIM'"
+  LEGACY=$(api2 POST /api/respawn "{\"mode\":\"legacy\",\"heirUsername\":\"$KILLER\"}")
+  echo "$LEGACY" | grep -q '"mode":"legacy"' || fail "legacy: $LEGACY"
+  echo "   $LEGACY"
+  api2 GET /api/me | grep -q '"retiredAt":"' || fail "victim should be retired"
+  RETRY=$(api2 POST /api/respawn '{"mode":"fresh"}')
+  echo "$RETRY" | grep -q '"error":"retired"' || fail "retired players must stay retired: $RETRY"
+  if echo "$VWITHDRAW" | grep -q 'CONFIRMED'; then
+    echo "$LEGACY" | grep -q '"testamentTxHash":"0x' || fail "expected on-chain testament tx: $LEGACY"
+  fi
+fi
+
 echo
 echo "ALL E2E CHECKS PASSED"

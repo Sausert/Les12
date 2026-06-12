@@ -43,9 +43,58 @@ model Player {
   betrayals     Betrayal[]
   casinoRounds  CasinoRound[]
   inventory     Inventory[]
+  retiredAt     DateTime?
+  items         Item[]
+  auctionsSold  Auction[]      @relation("auctionSeller")
+  auctionsBid   Auction[]      @relation("auctionBidder")
   createdAt     DateTime       @default(now())
 
   @@index([xp(sort: Desc)])
+}
+
+model ItemType {
+  id          Int    @id
+  key         String @unique
+  category    String // WEAPON | CAR | PROPERTY
+  price       BigInt
+  effectPct   Int    @default(0) // WEAPON: fewer bullets needed · CAR: shorter travel cooldown
+  yieldPerDay Int    @default(0) // PROPERTY: daily clean-cash rent
+  items       Item[]
+}
+
+model Item {
+  id          String    @id @default(cuid())
+  itemTypeId  Int
+  ownerId     String?
+  tokenId     BigInt?   @unique
+  mintTxHash  String?
+  escrowed    Boolean   @default(false) // held by the auction house
+  lastYieldAt DateTime  @default(now())
+  itemType    ItemType  @relation(fields: [itemTypeId], references: [id])
+  owner       Player?   @relation(fields: [ownerId], references: [id])
+  auctions    Auction[]
+  createdAt   DateTime  @default(now())
+
+  @@index([ownerId])
+}
+
+model Auction {
+  id           String    @id @default(cuid())
+  onchainId    BigInt?   @unique
+  itemId       String
+  sellerId     String
+  startPrice   BigInt
+  highBid      BigInt    @default(0)
+  highBidderId String?
+  endsAt       DateTime
+  status       String    @default("OPEN") // OPEN | SETTLED
+  settleTxHash String?
+  item         Item      @relation(fields: [itemId], references: [id])
+  seller       Player    @relation("auctionSeller", fields: [sellerId], references: [id])
+  highBidder   Player?   @relation("auctionBidder", fields: [highBidderId], references: [id])
+  createdAt    DateTime  @default(now())
+
+  @@index([status, endsAt])
 }
 
 model CasinoRound {

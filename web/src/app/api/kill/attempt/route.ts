@@ -7,6 +7,8 @@ import { json, apiError, requirePlayer, requireAlive, requireFree, rateLimit } f
 import { applyHeat } from "@/lib/game/crimes";
 import { rankForXp } from "@/lib/game/ranks";
 import { bloodMoney, bulletsNeeded, killXp, resolveKill, KILL_HEAT_GAIN } from "@/lib/game/pvp";
+import { effectiveBulletsNeeded } from "@/lib/game/items";
+import { getBestEffects } from "@/lib/server/items";
 import { chainEnabled } from "@/lib/chain/client";
 import { claimBountyOnChain } from "@/lib/chain/bounty";
 
@@ -44,7 +46,9 @@ export async function POST(request: Request) {
   if (player.bullets < bulletsFired) return apiError(400, "insufficient_bullets");
 
   const isProtected = Boolean(target.protection && target.protection.expiresAt > now);
-  const needed = bulletsNeeded(target.rankId, isProtected);
+  // A good weapon brings the requirement down.
+  const { weaponPct } = await getBestEffects(player.id);
+  const needed = effectiveBulletsNeeded(bulletsNeeded(target.rankId, isProtected), weaponPct);
   const roll = randomInt(0, 1_000_000) / 1_000_000;
   const outcome = resolveKill(bulletsFired, needed, roll);
 

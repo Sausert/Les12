@@ -40,6 +40,7 @@ export async function GET() {
     heat: player.heat,
     bullets: player.bullets,
     isDead: player.isDead,
+    retiredAt: player.retiredAt?.toISOString() ?? null,
     jailedUntil: jailed?.toISOString() ?? null,
     bribeCost: jailed ? bribeCost(Math.ceil((jailed.getTime() - now.getTime()) / 1000)) : null,
     protectedUntil:

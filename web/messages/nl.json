@@ -193,8 +193,19 @@
     "errors": {
       "username_taken": "Die naam is al vergeven.",
       "insufficient_cash": "Niet genoeg schoon geld.",
-      "invalid_input": "Nieuwe naam: 3-20 tekens (letters, cijfers, _)."
-    }
+      "invalid_input": "Nieuwe naam: 3-20 tekens (letters, cijfers, _).",
+      "heir_not_found": "Geen levende speler met die naam.",
+      "retired": "Dit account is voorgoed gestopt.",
+      "chain_error": "Het testament kon niet on-chain worden uitgevoerd.",
+      "cannot_target_self": "Jezelf als erfgenaam? Nee."
+    },
+    "legacyTitle": "Rust in vrede (testament)",
+    "legacyDesc": "Stop voorgoed. Je on-chain OMD gaat via het testament-contract voor 60% naar je erfgenaam (40% verbrandt); je bezittingen en resterende speelgeld gaan volledig over. Dit account speelt nooit meer.",
+    "heirName": "Bijnaam erfgenaam",
+    "legacyButton": "Teken",
+    "retiredTitle": "Hier rust een made man",
+    "retiredBody": "De erfenis is overgedragen aan {heir}. De stad onthoudt je naam.",
+    "retiredBodyNoHeir": "Dit account is voorgoed gestopt. De stad onthoudt je naam."
   },
   "auth": {
     "loginTitle": "Meld je bij de familie",
@@ -429,6 +440,66 @@
       "no_market": "Geen markt in deze wijk.",
       "dead": "Dode mannen smokkelen niet.",
       "jailed": "Vanuit de cel handel je niet."
+    }
+  },
+  "items": {
+    "title": "Bezittingen (NFT's)",
+    "shopTitle": "Te koop",
+    "inAuction": "in veiling",
+    "auctionButton": "Veil",
+    "startPrice": "Vanafprijs",
+    "durationMin": "Minuten",
+    "listButton": "Zet te koop",
+    "auctionCreated": "Je bezit hangt in het veilinghuis.",
+    "effectWeapon": "Wapen: {pct}% minder kogels nodig bij een moord",
+    "effectCar": "Auto: {pct}% kortere reistijd tussen wijken",
+    "effectProperty": "Vastgoed: {amount} OMD huur per dag",
+    "claimYield": "Int huur ({amount} OMD)",
+    "yieldClaimed": "{amount} OMD huur geïnd.",
+    "bought": "{item} gekocht — als NFT naar je wallet gemint.",
+    "errors": {
+      "insufficient_cash": "Niet genoeg schoon geld.",
+      "item_not_found": "Dat bezit bestaat niet.",
+      "item_escrowed": "Dit bezit hangt al in het veilinghuis.",
+      "nothing_to_claim": "Nog geen volledige dag huur opgebouwd.",
+      "chain_error": "Blockchain-transactie mislukt; je geld is teruggezet.",
+      "dead": "Dode mannen kopen niets.",
+      "jailed": "Vanuit de cel koop je niets."
+    },
+    "types": {
+      "revolver": "Revolver",
+      "tommy_gun": "Tommy gun",
+      "ford_model_a": "Ford Model A",
+      "cadillac_v16": "Cadillac V-16",
+      "speakeasy": "Speakeasy",
+      "docks_warehouse": "Pakhuis aan de Dokken",
+      "grand_casino_share": "Aandeel Grand Casino"
+    }
+  },
+  "auctions": {
+    "title": "Het Veilinghuis",
+    "subtitle": "Zeldzame bezittingen onder de hamer — biedingen in OMD, on-chain in escrow.",
+    "none": "Niets onder de hamer vannacht.",
+    "by": "van {seller}",
+    "startingAt": "vanaf {price} OMD",
+    "highBidder": "hoogste bod: {name}",
+    "noBids": "nog geen biedingen",
+    "endsAt": "sluit {time}",
+    "bidButton": "Bied",
+    "bidPlaced": "Je bod van {amount} OMD staat — on-chain in escrow.",
+    "settleButton": "Wikkel af",
+    "settled": "Veiling afgewikkeld.",
+    "hint": "Word je overboden, dan staat je inzet direct terug in je wallet (stort 'm via de bank weer in het spel).",
+    "errors": {
+      "auction_not_found": "Die veiling bestaat niet (meer).",
+      "auction_ended": "De hamer is al gevallen.",
+      "auction_not_ended": "De veiling loopt nog.",
+      "own_auction": "Op je eigen waar bieden? Klassiek, maar nee.",
+      "bid_too_low": "Bod te laag.",
+      "insufficient_cash": "Niet genoeg schoon geld.",
+      "chain_error": "Blockchain-transactie mislukt; je geld is teruggezet.",
+      "dead": "Dode mannen bieden niet.",
+      "jailed": "Vanuit de cel bied je niet."
     }
   }
 }

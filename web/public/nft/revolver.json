@@ -1,0 +1,11 @@
+{
+  "name": "Revolver",
+  "description": "A trusty .38 \u2014 ten percent fewer bullets needed on a hit.",
+  "image": "/icon.svg",
+  "attributes": [
+    {
+      "trait_type": "category",
+      "value": "WEAPON"
+    }
+  ]
+}

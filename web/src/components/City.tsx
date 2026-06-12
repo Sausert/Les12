@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, Shield, Target, Newspaper, Lock } from "lucide-react";
 import { useGame } from "./GameProvider";
 import { Market } from "./Market";
+import { Auctions } from "./Auctions";
 
 interface FoundTarget {
   username: string;
@@ -371,6 +372,8 @@ export function City() {
       </section>
 
       <Market />
+
+      <Auctions />
 
       {/* Kill feed as newspaper */}
       <section>

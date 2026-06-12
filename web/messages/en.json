@@ -193,8 +193,19 @@
     "errors": {
       "username_taken": "That name is already taken.",
       "insufficient_cash": "Not enough clean cash.",
-      "invalid_input": "New alias: 3-20 characters (letters, digits, _)."
-    }
+      "invalid_input": "New alias: 3-20 characters (letters, digits, _).",
+      "heir_not_found": "No living player by that name.",
+      "retired": "This account retired for good.",
+      "chain_error": "The testament could not be executed on-chain.",
+      "cannot_target_self": "Naming yourself heir? No."
+    },
+    "legacyTitle": "Rest in peace (testament)",
+    "legacyDesc": "Quit for good. Your on-chain OMD passes through the testament contract — 60% to your heir, 40% burns; your possessions and remaining game cash transfer in full. This account never plays again.",
+    "heirName": "Heir's alias",
+    "legacyButton": "Sign",
+    "retiredTitle": "Here rests a made man",
+    "retiredBody": "The estate passed to {heir}. The city remembers your name.",
+    "retiredBodyNoHeir": "This account retired for good. The city remembers your name."
   },
   "auth": {
     "loginTitle": "Report to the family",
@@ -429,6 +440,66 @@
       "no_market": "No market in this district.",
       "dead": "Dead men don't smuggle.",
       "jailed": "No trading from a cell."
+    }
+  },
+  "items": {
+    "title": "Possessions (NFTs)",
+    "shopTitle": "For sale",
+    "inAuction": "in auction",
+    "auctionButton": "Auction",
+    "startPrice": "Start price",
+    "durationMin": "Minutes",
+    "listButton": "List",
+    "auctionCreated": "Your possession hangs in the auction house.",
+    "effectWeapon": "Weapon: {pct}% fewer bullets needed on a hit",
+    "effectCar": "Car: {pct}% shorter travel time between districts",
+    "effectProperty": "Property: {amount} OMD rent per day",
+    "claimYield": "Collect rent ({amount} OMD)",
+    "yieldClaimed": "Collected {amount} OMD in rent.",
+    "bought": "Bought {item} — minted to your wallet as an NFT.",
+    "errors": {
+      "insufficient_cash": "Not enough clean cash.",
+      "item_not_found": "No such possession.",
+      "item_escrowed": "This possession already hangs in the auction house.",
+      "nothing_to_claim": "No full day of rent accrued yet.",
+      "chain_error": "Blockchain transaction failed; your money was restored.",
+      "dead": "Dead men buy nothing.",
+      "jailed": "No shopping from a cell."
+    },
+    "types": {
+      "revolver": "Revolver",
+      "tommy_gun": "Tommy gun",
+      "ford_model_a": "Ford Model A",
+      "cadillac_v16": "Cadillac V-16",
+      "speakeasy": "Speakeasy",
+      "docks_warehouse": "Docks Warehouse",
+      "grand_casino_share": "Grand Casino Share"
+    }
+  },
+  "auctions": {
+    "title": "The Auction House",
+    "subtitle": "Rare possessions under the hammer — bids in OMD, escrowed on-chain.",
+    "none": "Nothing under the hammer tonight.",
+    "by": "by {seller}",
+    "startingAt": "from {price} OMD",
+    "highBidder": "high bidder: {name}",
+    "noBids": "no bids yet",
+    "endsAt": "closes {time}",
+    "bidButton": "Bid",
+    "bidPlaced": "Your bid of {amount} OMD stands — escrowed on-chain.",
+    "settleButton": "Settle",
+    "settled": "Auction settled.",
+    "hint": "Get outbid and your stake lands right back in your wallet (deposit it into the game via the bank).",
+    "errors": {
+      "auction_not_found": "That auction doesn't exist (anymore).",
+      "auction_ended": "The hammer already fell.",
+      "auction_not_ended": "The auction is still running.",
+      "own_auction": "Bidding on your own goods? Classic, but no.",
+      "bid_too_low": "Bid too low.",
+      "insufficient_cash": "Not enough clean cash.",
+      "chain_error": "Blockchain transaction failed; your money was restored.",
+      "dead": "Dead men don't bid.",
+      "jailed": "No bidding from a cell."
     }
   }
 }

@@ -3,6 +3,8 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { json, apiError, requirePlayer, requireAlive, requireFree, rateLimit } from "@/lib/api";
 import { bulletsNeeded, SEARCH_COOLDOWN_SEC, SEARCH_VALID_SEC } from "@/lib/game/pvp";
+import { effectiveBulletsNeeded } from "@/lib/game/items";
+import { getBestEffects } from "@/lib/server/items";
 
 const bodySchema = z.object({ username: z.string().min(1).max(30) });
 
@@ -57,12 +59,13 @@ export async function POST(request: Request) {
   }
 
   const isProtected = Boolean(target.protection && target.protection.expiresAt > now);
+  const { weaponPct } = await getBestEffects(player.id);
   return json({
     target: {
       username: target.username,
       rankId: target.rankId,
       isProtected,
-      bulletsNeeded: bulletsNeeded(target.rankId, isProtected),
+      bulletsNeeded: effectiveBulletsNeeded(bulletsNeeded(target.rankId, isProtected), weaponPct),
     },
     foundUntil: foundUntil.toISOString(),
     searchCooldownUntil: cooldownUntil.toISOString(),

@@ -1,0 +1,11 @@
+{
+  "name": "Ford Model A",
+  "description": "Gets you across town a quarter faster.",
+  "image": "/icon.svg",
+  "attributes": [
+    {
+      "trait_type": "category",
+      "value": "CAR"
+    }
+  ]
+}

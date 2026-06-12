@@ -3,6 +3,8 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { json, apiError, requirePlayer, requireAlive, requireFree, rateLimit } from "@/lib/api";
 import { DISTRICT_MOVE_COOLDOWN_SEC } from "@/lib/game/family";
+import { effectiveTravelCooldown } from "@/lib/game/items";
+import { getBestEffects } from "@/lib/server/items";
 
 const bodySchema = z.object({ districtId: z.number().int().min(1) });
 
@@ -21,7 +23,10 @@ export async function POST(request: Request) {
   if (district.id === player.districtId) return apiError(400, "already_here");
 
   const now = new Date();
-  const cooldownUntil = new Date(now.getTime() + DISTRICT_MOVE_COOLDOWN_SEC * 1000);
+  // A fast car gets you across town sooner.
+  const { carPct } = await getBestEffects(player.id);
+  const cooldownSec = effectiveTravelCooldown(DISTRICT_MOVE_COOLDOWN_SEC, carPct);
+  const cooldownUntil = new Date(now.getTime() + cooldownSec * 1000);
 
   try {
     await db.$transaction(async (tx) => {

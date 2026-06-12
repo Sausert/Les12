@@ -1,0 +1,11 @@
+{
+  "name": "Docks Warehouse",
+  "description": "Crates come in, nobody asks. 60 OMD per day.",
+  "image": "/icon.svg",
+  "attributes": [
+    {
+      "trait_type": "category",
+      "value": "PROPERTY"
+    }
+  ]
+}
