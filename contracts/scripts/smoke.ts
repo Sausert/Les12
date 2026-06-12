@@ -1,6 +1,15 @@
 import hre from "hardhat";
-import { parseEther } from "viem";
+import { defineChain, parseEther } from "viem";
 import deployments from "../../web/src/lib/chain/deployments.json";
+
+const sonicBlazeChain = defineChain({
+  id: 14601,
+  name: "Sonic Blaze Testnet",
+  nativeCurrency: { name: "Sonic", symbol: "S", decimals: 18 },
+  rpcUrls: {
+    default: { http: [process.env.SONIC_BLAZE_RPC ?? "https://rpc.testnet.soniclabs.com"] },
+  },
+});
 
 /**
  * Post-deploy smoke test: checks that every contract has code at its address,
@@ -9,9 +18,11 @@ import deployments from "../../web/src/lib/chain/deployments.json";
  *   TREASURY_PRIVATE_KEY=0x… npx hardhat run scripts/smoke.ts --network sonicBlaze
  */
 async function main() {
-  const [treasury] = await hre.viem.getWalletClients();
+  const chainOverride = hre.network.config.chainId === 14601 ? { chain: sonicBlazeChain } : {};
+  const [treasury] = await hre.viem.getWalletClients(chainOverride);
   if (!treasury) throw new Error("Set TREASURY_PRIVATE_KEY for this network.");
-  const publicClient = await hre.viem.getPublicClient();
+  const publicClient = await hre.viem.getPublicClient(chainOverride);
+  const client = { client: { public: publicClient, wallet: treasury } };
   console.log(`Network: ${hre.network.name} · treasury: ${treasury.account.address}`);
 
   const gas = await publicClient.getBalance({ address: treasury.account.address });
@@ -37,6 +48,7 @@ async function main() {
   const token = await hre.viem.getContractAt(
     "OmertaToken",
     named.omertaToken as `0x${string}`,
+    client,
   );
   const before = await token.read.balanceOf([treasury.account.address]);
   const hash = await token.write.mint([treasury.account.address, parseEther("1")], {
