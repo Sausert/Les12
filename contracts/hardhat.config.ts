@@ -29,7 +29,7 @@ const config: HardhatUserConfig = {
   networks: {
     sonicBlaze: {
       url: process.env.SONIC_BLAZE_RPC ?? "https://rpc.blaze.soniclabs.com",
-      chainId: 57054,
+      chainId: 14601,
       accounts: TREASURY_PRIVATE_KEY ? [TREASURY_PRIVATE_KEY] : [],
     },
   },
